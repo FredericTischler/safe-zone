@@ -1,0 +1,55 @@
+# ====================================
+# PRODUCT SERVICE CONFIGURATION
+# ====================================
+
+server:
+  port: 8082  # Different port from User Service (8081)
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: ecommerce
+
+spring:
+  application:
+    name: product-service
+  
+  # MONGODB CONFIGURATION
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: ecommerce_products
+      authentication-database: admin
+      username: admin
+      password: admin123
+  
+  # KAFKA CONFIGURATION (Producer)
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: productEvent:com.ecommerce.product.dto.ProductEvent
+
+# JWT CONFIGURATION (same secret as User Service for validation)
+jwt:
+  secret: MySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForHS256Algorithm
+  expiration: 86400000  # 24 hours in milliseconds
+
+# KAFKA TOPICS
+kafka:
+  topic:
+    product-events: product-events
+
+# LOGGING
+logging:
+  level:
+    com.ecommerce.product: INFO
+    org.springframework.security: DEBUG
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8084,http://localhost:4200,https://localhost:4200}

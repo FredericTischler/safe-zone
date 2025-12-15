@@ -1,0 +1,144 @@
+# ===================================
+# GITIGNORE - E-Commerce Project
+# ===================================
+
+# ===== ENVIRONMENT =====
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+*.env
+!.env.example
+
+# ===== JAVA/MAVEN =====
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== NODE/NPM =====
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Angular
+.angular/
+dist/
+tmp/
+out-tsc/
+
+# IDEs
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ===== LOGS =====
+*.log
+logs/
+
+# ===== COVERAGE =====
+coverage/
+*.lcov
+.nyc_output/
+
+# ===== SONARQUBE =====
+.sonar/
+.sonarqube/
+.scannerwork/
+
+# ===== DOCKER =====
+# Ne pas ignorer les Dockerfiles et docker-compose
+# Mais ignorer les overrides locaux
+docker-compose.override.yml
+
+# ===== BACKUP & TEMP =====
+*.bak
+*.tmp
+*.temp
+*~
+
+# ===== BUILD =====
+build/
+dist/
+out/
+
+# ===== CERTIFICATES & KEYS =====
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+# ===== SECRETS & CREDENTIALS =====
+*secret*
+*credential*
+*password*
+*.token
+sonar-token.txt
+credentials.json
+secrets.yml
+secrets.yaml
+
+# ===== MEDIA UPLOADS (dev) =====
+# Uncomment if you want to ignore uploaded files in development
+# uploads/
+# media/
+
+# ===== DATABASE =====
+*.db
+*.sqlite
+*.sqlite3
+*.sql.backup
+*.dump
+
+# ===== CACHE & SESSIONS =====
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# ===== MISC =====
+*.pid
+*.seed
+*.pid.lock
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
