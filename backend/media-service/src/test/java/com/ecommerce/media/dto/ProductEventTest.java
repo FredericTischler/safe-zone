@@ -13,9 +13,9 @@ class ProductEventTest {
         LocalDateTime now = LocalDateTime.now();
         ProductEvent event = new ProductEvent("DELETED", "product-1", "Phone", "seller-1", now);
 
-        assertThat(event.getEventType()).isEqualTo("DELETED");
-        assertThat(event.getProductName()).isEqualTo("Phone");
-        assertThat(event.getTimestamp()).isEqualTo(now);
+        assertThat(event)
+            .extracting(ProductEvent::getEventType, ProductEvent::getProductName, ProductEvent::getTimestamp)
+            .containsExactly("DELETED", "Phone", now);
     }
 
     @Test
@@ -25,9 +25,9 @@ class ProductEventTest {
         event.setProductId("product-2");
         event.setSellerId("seller-2");
 
-        assertThat(event.getEventType()).isEqualTo("CREATED");
-        assertThat(event.getProductId()).isEqualTo("product-2");
-        assertThat(event.getSellerId()).isEqualTo("seller-2");
+        assertThat(event)
+            .extracting(ProductEvent::getEventType, ProductEvent::getProductId, ProductEvent::getSellerId)
+            .containsExactly("CREATED", "product-2", "seller-2");
     }
 
     @Test
@@ -36,9 +36,11 @@ class ProductEventTest {
         ProductEvent first = new ProductEvent("UPDATED", "p1", "Phone", "seller", now);
         ProductEvent second = new ProductEvent("UPDATED", "p1", "Phone", "seller", now);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Phone");
+
         second.setEventType("DELETED");
         assertThat(first).isNotEqualTo(second);
     }

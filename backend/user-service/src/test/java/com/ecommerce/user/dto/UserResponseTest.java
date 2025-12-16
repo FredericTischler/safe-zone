@@ -40,9 +40,11 @@ class UserResponseTest {
         UserResponse second = new UserResponse("id", "Alice", "alice@mail.com", Role.CLIENT,
             "/avatars/a.png", now.minusDays(1), now);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Alice");
+
         second.setEmail("other@mail.com");
         assertThat(first).isNotEqualTo(second);
     }

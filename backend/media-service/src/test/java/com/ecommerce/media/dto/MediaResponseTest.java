@@ -14,8 +14,9 @@ class MediaResponseTest {
         MediaResponse response = new MediaResponse("id", "product-1", "file.png", "image/png",
                 100L, "seller", "/api/media/file/product-1/file.png", now);
 
-        assertThat(response.getId()).isEqualTo("id");
-        assertThat(response.getUploadedAt()).isEqualTo(now);
+        assertThat(response)
+            .extracting(MediaResponse::getId, MediaResponse::getUploadedAt)
+            .containsExactly("id", now);
         assertThat(response.getUrl()).contains("file.png");
     }
 
@@ -26,9 +27,9 @@ class MediaResponseTest {
         response.setFilename("file.webp");
         response.setSize(200L);
 
-        assertThat(response.getId()).isEqualTo("id-2");
-        assertThat(response.getFilename()).isEqualTo("file.webp");
-        assertThat(response.getSize()).isEqualTo(200L);
+        assertThat(response)
+            .extracting(MediaResponse::getId, MediaResponse::getFilename, MediaResponse::getSize)
+            .containsExactly("id-2", "file.webp", 200L);
     }
 
     @Test
@@ -39,9 +40,11 @@ class MediaResponseTest {
         MediaResponse second = new MediaResponse("id", "product-1", "file.png", "image/png",
             100L, "seller", "/api/media/file/product-1/file.png", now);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("product-1");
+
         second.setFilename("different.png");
         assertThat(first).isNotEqualTo(second);
     }

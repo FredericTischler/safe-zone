@@ -10,9 +10,9 @@ class ProductRequestTest {
     void allArgsConstructorShouldExposeValues() {
         ProductRequest request = new ProductRequest("Phone", "Desc", 999.0, "Tech", 5);
 
-        assertThat(request.getName()).isEqualTo("Phone");
-        assertThat(request.getStock()).isEqualTo(5);
-        assertThat(request.getCategory()).isEqualTo("Tech");
+        assertThat(request)
+            .extracting(ProductRequest::getName, ProductRequest::getStock, ProductRequest::getCategory)
+            .containsExactly("Phone", 5, "Tech");
     }
 
     @Test
@@ -24,8 +24,9 @@ class ProductRequestTest {
         request.setCategory("Gadgets");
         request.setStock(10);
 
-        assertThat(request.getDescription()).isEqualTo("New");
-        assertThat(request.getPrice()).isEqualTo(500.0);
+        assertThat(request)
+            .extracting(ProductRequest::getDescription, ProductRequest::getPrice)
+            .containsExactly("New", 500.0);
     }
 
     @Test
@@ -33,9 +34,11 @@ class ProductRequestTest {
         ProductRequest first = new ProductRequest("Phone", "Desc", 100.0, "Tech", 5);
         ProductRequest second = new ProductRequest("Phone", "Desc", 100.0, "Tech", 5);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Phone");
+
         second.setName("Tablet");
         assertThat(first).isNotEqualTo(second);
     }

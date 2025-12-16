@@ -14,9 +14,9 @@ class ProductResponseTest {
         ProductResponse response = new ProductResponse("id", "Phone", "Desc", 1000.0,
             "Tech", 2, "seller-1", "Alice", now.minusDays(1), now);
 
-        assertThat(response.getId()).isEqualTo("id");
-        assertThat(response.getSellerName()).isEqualTo("Alice");
-        assertThat(response.getUpdatedAt()).isEqualTo(now);
+        assertThat(response)
+            .extracting(ProductResponse::getId, ProductResponse::getSellerName, ProductResponse::getUpdatedAt)
+            .containsExactly("id", "Alice", now);
     }
 
     @Test
@@ -26,8 +26,9 @@ class ProductResponseTest {
         response.setName("Tablet");
         response.setStock(3);
 
-        assertThat(response.getName()).isEqualTo("Tablet");
-        assertThat(response.getStock()).isEqualTo(3);
+        assertThat(response)
+            .extracting(ProductResponse::getName, ProductResponse::getStock)
+            .containsExactly("Tablet", 3);
     }
 
     @Test
@@ -38,9 +39,11 @@ class ProductResponseTest {
         ProductResponse second = new ProductResponse("id", "Phone", "Desc", 1000.0,
             "Tech", 2, "seller-1", "Alice", now.minusDays(1), now);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Phone");
+
         second.setName("Other");
         assertThat(first).isNotEqualTo(second);
     }

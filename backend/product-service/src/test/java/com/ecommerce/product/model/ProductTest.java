@@ -14,9 +14,11 @@ class ProductTest {
 
         product.prePersist();
 
-        assertThat(product.getCreatedAt()).isNotNull();
-        assertThat(product.getUpdatedAt()).isNotNull();
-        assertThat(product.getUpdatedAt()).isAfterOrEqualTo(product.getCreatedAt());
+        assertThat(product.getCreatedAt())
+            .isNotNull();
+        assertThat(product.getUpdatedAt())
+            .isNotNull()
+            .isAfterOrEqualTo(product.getCreatedAt());
     }
 
     @Test
@@ -27,8 +29,10 @@ class ProductTest {
 
         product.prePersist();
 
-        assertThat(product.getCreatedAt()).isEqualTo(created);
-        assertThat(product.getUpdatedAt()).isAfterOrEqualTo(created);
+        assertThat(product.getCreatedAt())
+            .isEqualTo(created);
+        assertThat(product.getUpdatedAt())
+            .isAfterOrEqualTo(created);
     }
 
     @Test
@@ -37,9 +41,9 @@ class ProductTest {
         Product product = new Product("id", "Phone", "Desc", 1000.0, "Tech", 5,
                 "seller-1", "Alice", now.minusDays(1), now);
 
-        assertThat(product.getId()).isEqualTo("id");
-        assertThat(product.getSellerName()).isEqualTo("Alice");
-        assertThat(product.getUpdatedAt()).isEqualTo(now);
+        assertThat(product)
+            .extracting(Product::getId, Product::getSellerName, Product::getUpdatedAt)
+            .containsExactly("id", "Alice", now);
     }
 
     @Test
@@ -54,9 +58,9 @@ class ProductTest {
         product.setSellerId("seller");
         product.setSellerName("Seller Name");
 
-        assertThat(product.getDescription()).isEqualTo("Desc");
-        assertThat(product.getSellerName()).isEqualTo("Seller Name");
-        assertThat(product.getPrice()).isEqualTo(10.0);
+        assertThat(product)
+            .extracting(Product::getDescription, Product::getSellerName, Product::getPrice)
+            .containsExactly("Desc", "Seller Name", 10.0);
     }
 
     @Test
@@ -67,9 +71,11 @@ class ProductTest {
         Product second = new Product("id", "Phone", "Desc", 1000.0, "Tech", 5,
             "seller-1", "Alice", now.minusDays(1), now);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Phone");
+
         second.setName("Other");
         assertThat(first).isNotEqualTo(second);
     }

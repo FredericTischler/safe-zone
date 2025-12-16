@@ -13,8 +13,10 @@ class UserTest {
         assertThat(user)
             .extracting(User::getName, User::getRole, User::getCreatedAt, User::getUpdatedAt)
             .containsExactly("Alice", Role.CLIENT, user.getCreatedAt(), user.getUpdatedAt());
-        assertThat(user.getCreatedAt()).isNotNull();
-        assertThat(user.getUpdatedAt()).isNotNull();
+        assertThat(user.getCreatedAt())
+            .isNotNull();
+        assertThat(user.getUpdatedAt())
+            .isNotNull();
     }
 
     @Test
@@ -31,9 +33,11 @@ class UserTest {
         User first = new User("id", "Bob", "bob@mail.com", "pwd", Role.SELLER, "/a.png", null, null);
         User second = new User("id", "Bob", "bob@mail.com", "pwd", Role.SELLER, "/a.png", null, null);
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("bob@mail.com");
+
         second.setEmail("alice@mail.com");
         assertThat(first).isNotEqualTo(second);
     }
