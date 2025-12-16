@@ -25,8 +25,11 @@
         <java.version>17</java.version>
         <jjwt.version>0.11.5</jjwt.version>
 
-        <!-- SonarQube -->
-        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <!-- SonarQube/SonarCloud Configuration -->
+        <!-- sonar.host.url can be overridden by -Dsonar.host.url in CI/CD -->
+        <!-- For local analysis: use http://localhost:9000 -->
+        <!-- For GitHub Actions: https://sonarcloud.io (defined in workflow) -->
+        <sonar.organization>zone01-ecommerce</sonar.organization>
         <sonar.projectKey>ecommerce-user-service</sonar.projectKey>
         <sonar.projectName>E-Commerce User Service</sonar.projectName>
         <sonar.java.binaries>target/classes</sonar.java.binaries>

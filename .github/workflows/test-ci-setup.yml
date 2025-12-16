@@ -1,0 +1,378 @@
+name: Test CI/CD Setup
+
+# This workflow validates the CI/CD configuration
+# Run this manually to verify secrets and SonarCloud connectivity
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      test_level:
+        description: 'Test level to run'
+        required: true
+        default: 'basic'
+        type: choice
+        options:
+          - basic
+          - full
+
+jobs:
+  # =========================================================================
+  # Job 1: Test GitHub Secrets Configuration
+  # =========================================================================
+  test-secrets:
+    name: Verify GitHub Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check SONAR_TOKEN secret
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "=========================================="
+          echo "  Testing SONAR_TOKEN Secret"
+          echo "=========================================="
+
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "❌ SONAR_TOKEN is NOT configured"
+            echo ""
+            echo "Action Required:"
+            echo "1. Go to GitHub → Settings → Secrets and variables → Actions"
+            echo "2. Create secret named: SONAR_TOKEN"
+            echo "3. Value: Your SonarCloud token from https://sonarcloud.io"
+            exit 1
+          else
+            echo "✅ SONAR_TOKEN is configured"
+            echo "Token length: ${#SONAR_TOKEN} characters"
+            echo "Token prefix: ${SONAR_TOKEN:0:7}..."
+            echo ""
+
+            # Validate token format (should start with squ_)
+            if [[ "$SONAR_TOKEN" == squ_* ]]; then
+              echo "✅ Token format is correct (starts with 'squ_')"
+            else
+              echo "⚠️  Warning: Token doesn't start with 'squ_' (expected for SonarCloud)"
+              echo "   This might be a SonarQube token instead of SonarCloud"
+            fi
+          fi
+
+          echo ""
+          echo "=========================================="
+
+      - name: Test SonarCloud API Authentication
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "=========================================="
+          echo "  Testing SonarCloud API Connection"
+          echo "=========================================="
+
+          # Test authentication endpoint
+          response=$(curl -s -u "$SONAR_TOKEN:" https://sonarcloud.io/api/authentication/validate)
+
+          echo "API Response: $response"
+          echo ""
+
+          if echo "$response" | grep -q '"valid":true'; then
+            echo "✅ SonarCloud authentication successful!"
+            echo "✅ Token is valid and active"
+          else
+            echo "❌ SonarCloud authentication failed"
+            echo "❌ Token might be expired or invalid"
+            echo ""
+            echo "Action Required:"
+            echo "1. Go to https://sonarcloud.io → My Account → Security"
+            echo "2. Check if your token is still active"
+            echo "3. Generate a new token if needed"
+            echo "4. Update the GitHub secret SONAR_TOKEN"
+            exit 1
+          fi
+
+          echo ""
+          echo "=========================================="
+
+  # =========================================================================
+  # Job 2: Test SonarCloud Organization and Projects
+  # =========================================================================
+  test-sonarcloud-config:
+    name: Verify SonarCloud Projects
+    runs-on: ubuntu-latest
+    needs: test-secrets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check SonarCloud Organization
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "=========================================="
+          echo "  Checking SonarCloud Organization"
+          echo "=========================================="
+
+          org_key="zone01-ecommerce"
+
+          # Check if organization exists
+          response=$(curl -s -u "$SONAR_TOKEN:" \
+            "https://sonarcloud.io/api/organizations/search?organizations=$org_key")
+
+          if echo "$response" | grep -q "\"key\":\"$org_key\""; then
+            echo "✅ Organization '$org_key' exists on SonarCloud"
+          else
+            echo "❌ Organization '$org_key' NOT found on SonarCloud"
+            echo ""
+            echo "Action Required:"
+            echo "1. Go to https://sonarcloud.io"
+            echo "2. Create organization: $org_key"
+            echo "3. Link it to your GitHub account"
+            exit 1
+          fi
+
+          echo ""
+          echo "=========================================="
+
+      - name: Check SonarCloud Projects
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "=========================================="
+          echo "  Checking Required SonarCloud Projects"
+          echo "=========================================="
+
+          org_key="zone01-ecommerce"
+
+          # List of required projects
+          required_projects=(
+            "ecommerce-user-service"
+            "ecommerce-product-service"
+            "ecommerce-media-service"
+            "ecommerce-frontend"
+          )
+
+          all_found=true
+
+          for project_key in "${required_projects[@]}"; do
+            echo ""
+            echo "Checking project: $project_key"
+
+            response=$(curl -s -u "$SONAR_TOKEN:" \
+              "https://sonarcloud.io/api/projects/search?projects=$project_key&organization=$org_key")
+
+            if echo "$response" | grep -q "\"key\":\"$project_key\""; then
+              echo "  ✅ Project '$project_key' exists"
+            else
+              echo "  ❌ Project '$project_key' NOT found"
+              all_found=false
+            fi
+          done
+
+          echo ""
+          echo "=========================================="
+
+          if [ "$all_found" = false ]; then
+            echo "❌ Some projects are missing on SonarCloud"
+            echo ""
+            echo "Action Required:"
+            echo "1. Go to https://sonarcloud.io/projects/create"
+            echo "2. Create the missing projects listed above"
+            echo "3. Ensure they are linked to organization: $org_key"
+            exit 1
+          else
+            echo "✅ All 4 required projects exist on SonarCloud!"
+          fi
+
+  # =========================================================================
+  # Job 3: Test Backend Configuration (Maven)
+  # =========================================================================
+  test-backend-config:
+    name: Test Backend Maven Configuration
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_level == 'full' || github.event.inputs.test_level == 'basic'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Verify pom.xml configuration
+        run: |
+          echo "=========================================="
+          echo "  Verifying Backend pom.xml Files"
+          echo "=========================================="
+
+          services=("user-service" "product-service" "media-service")
+          all_ok=true
+
+          for service in "${services[@]}"; do
+            echo ""
+            echo "Checking: backend/$service/pom.xml"
+            pom_file="backend/$service/pom.xml"
+
+            # Check if sonar.organization is present
+            if grep -q "<sonar.organization>zone01-ecommerce</sonar.organization>" "$pom_file"; then
+              echo "  ✅ sonar.organization configured"
+            else
+              echo "  ❌ sonar.organization NOT configured"
+              all_ok=false
+            fi
+
+            # Check if sonar.projectKey is present
+            if grep -q "<sonar.projectKey>ecommerce-$service</sonar.projectKey>" "$pom_file"; then
+              echo "  ✅ sonar.projectKey configured"
+            else
+              echo "  ❌ sonar.projectKey NOT configured"
+              all_ok=false
+            fi
+
+            # Check if JaCoCo is configured
+            if grep -q "jacoco-maven-plugin" "$pom_file"; then
+              echo "  ✅ JaCoCo plugin configured"
+            else
+              echo "  ⚠️  JaCoCo plugin NOT found"
+            fi
+          done
+
+          echo ""
+          echo "=========================================="
+
+          if [ "$all_ok" = false ]; then
+            echo "❌ Some configuration issues found"
+            exit 1
+          else
+            echo "✅ All backend pom.xml files correctly configured!"
+          fi
+
+      - name: Test Maven Build (user-service only)
+        if: github.event.inputs.test_level == 'full'
+        working-directory: backend/user-service
+        run: |
+          echo "=========================================="
+          echo "  Testing Maven Build"
+          echo "=========================================="
+
+          mvn clean compile -B -q
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Maven build successful"
+          else
+            echo "❌ Maven build failed"
+            exit 1
+          fi
+
+  # =========================================================================
+  # Job 4: Test Frontend Configuration
+  # =========================================================================
+  test-frontend-config:
+    name: Test Frontend Configuration
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_level == 'full' || github.event.inputs.test_level == 'basic'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify sonar-project.properties
+        run: |
+          echo "=========================================="
+          echo "  Verifying Frontend Configuration"
+          echo "=========================================="
+
+          config_file="frontend/sonar-project.properties"
+          all_ok=true
+
+          echo "Checking: $config_file"
+          echo ""
+
+          # Check required properties
+          if grep -q "sonar.organization=zone01-ecommerce" "$config_file"; then
+            echo "✅ sonar.organization configured"
+          else
+            echo "❌ sonar.organization NOT configured"
+            all_ok=false
+          fi
+
+          if grep -q "sonar.projectKey=ecommerce-frontend" "$config_file"; then
+            echo "✅ sonar.projectKey configured"
+          else
+            echo "❌ sonar.projectKey NOT configured"
+            all_ok=false
+          fi
+
+          if grep -q "sonar.sources=src" "$config_file"; then
+            echo "✅ sonar.sources configured"
+          else
+            echo "❌ sonar.sources NOT configured"
+            all_ok=false
+          fi
+
+          # Check that localhost URL is NOT hardcoded
+          if grep -q "sonar.host.url=http://localhost:9000" "$config_file"; then
+            echo "⚠️  Warning: localhost URL found (should be removed or commented)"
+          else
+            echo "✅ No hardcoded localhost URL"
+          fi
+
+          echo ""
+          echo "=========================================="
+
+          if [ "$all_ok" = false ]; then
+            echo "❌ Frontend configuration issues found"
+            exit 1
+          else
+            echo "✅ Frontend configuration looks good!"
+          fi
+
+  # =========================================================================
+  # Job 5: Summary Report
+  # =========================================================================
+  summary:
+    name: Configuration Summary
+    runs-on: ubuntu-latest
+    needs: [test-secrets, test-sonarcloud-config, test-backend-config, test-frontend-config]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "=========================================="
+          echo "  CI/CD CONFIGURATION TEST SUMMARY"
+          echo "=========================================="
+          echo ""
+          echo "Test Results:"
+          echo "  - Secrets Configuration: ${{ needs.test-secrets.result }}"
+          echo "  - SonarCloud Setup: ${{ needs.test-sonarcloud-config.result }}"
+          echo "  - Backend Config: ${{ needs.test-backend-config.result }}"
+          echo "  - Frontend Config: ${{ needs.test-frontend-config.result }}"
+          echo ""
+
+          if [ "${{ needs.test-secrets.result }}" == "success" ] && \
+             [ "${{ needs.test-sonarcloud-config.result }}" == "success" ] && \
+             [ "${{ needs.test-backend-config.result }}" == "success" ] && \
+             [ "${{ needs.test-frontend-config.result }}" == "success" ]; then
+            echo "✅ ALL TESTS PASSED!"
+            echo "✅ Your CI/CD configuration is ready for production use"
+            echo ""
+            echo "Next Steps:"
+            echo "1. Create a Pull Request to test the workflows"
+            echo "2. Verify that SonarCloud analysis runs automatically"
+            echo "3. Check that Quality Gate results are posted to PR"
+            echo "4. Configure branch protection rules on 'main'"
+          else
+            echo "❌ SOME TESTS FAILED"
+            echo "Please review the failed jobs above and fix the issues"
+            exit 1
+          fi
+
+          echo ""
+          echo "=========================================="

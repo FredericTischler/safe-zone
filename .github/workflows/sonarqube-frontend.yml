@@ -1,0 +1,251 @@
+name: SonarCloud Frontend Analysis
+
+# ============================================================================
+# TRIGGERS
+# ============================================================================
+# Execute workflow on push or pull request to main branch
+# Only run when frontend files are modified
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/sonarqube-frontend.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/sonarqube-frontend.yml'
+
+# ============================================================================
+# PERMISSIONS
+# ============================================================================
+# Required for PR comments and SonarCloud integration
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+# ============================================================================
+# JOBS
+# ============================================================================
+jobs:
+  # --------------------------------------------------------------------------
+  # Frontend Analysis
+  # Runs SonarCloud analysis for Angular frontend
+  # --------------------------------------------------------------------------
+  frontend-analysis:
+    name: Analyze Frontend (Angular)
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------------------------------------
+      # Step 1: Checkout Code
+      # ----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full clone for SonarCloud to access complete history
+          fetch-depth: 0
+
+      # ----------------------------------------------------------------------
+      # Step 2: Setup Node.js 20
+      # ----------------------------------------------------------------------
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # ----------------------------------------------------------------------
+      # Step 3: Cache Node Modules
+      # Speeds up builds by caching node_modules
+      # ----------------------------------------------------------------------
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            frontend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # ----------------------------------------------------------------------
+      # Step 4: Cache SonarCloud Packages
+      # Caching speeds up subsequent builds
+      # ----------------------------------------------------------------------
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-frontend
+          restore-keys: |
+            ${{ runner.os }}-sonar-frontend
+            ${{ runner.os }}-sonar
+
+      # ----------------------------------------------------------------------
+      # Step 5: Install Dependencies
+      # ----------------------------------------------------------------------
+      - name: Install dependencies
+        working-directory: frontend
+        run: |
+          echo "Installing npm dependencies..."
+          npm ci --prefer-offline --no-audit
+
+      # ----------------------------------------------------------------------
+      # Step 6: Run Linting (Optional but Recommended)
+      # Ensures code style consistency
+      # ----------------------------------------------------------------------
+      - name: Run ESLint
+        working-directory: frontend
+        run: |
+          echo "Running ESLint..."
+          # Check if lint script exists in package.json
+          if npm run | grep -q "lint"; then
+            npm run lint
+          else
+            echo "⚠️ No lint script found, skipping..."
+          fi
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
+      # Step 7: Run Tests with Coverage
+      # Uses ChromeHeadless for CI environment
+      # ----------------------------------------------------------------------
+      - name: Run tests with coverage
+        working-directory: frontend
+        run: |
+          echo "Running tests with coverage..."
+          npm run test -- \
+            --no-watch \
+            --no-progress \
+            --browsers=ChromeHeadless \
+            --code-coverage
+        env:
+          CHROME_BIN: /usr/bin/google-chrome-stable
+        continue-on-error: false
+
+      # ----------------------------------------------------------------------
+      # Step 8: Build Application
+      # Verifies production build works
+      # ----------------------------------------------------------------------
+      - name: Build application
+        working-directory: frontend
+        run: |
+          echo "Building Angular application..."
+          npm run build -- --configuration production
+        continue-on-error: false
+
+      # ----------------------------------------------------------------------
+      # Step 9: Run SonarCloud Analysis
+      # Sends code and coverage data to SonarCloud
+      # ----------------------------------------------------------------------
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectBaseDir: frontend
+          args: >
+            -Dsonar.organization=zone01-ecommerce
+            -Dsonar.projectKey=ecommerce-frontend
+            -Dsonar.projectName=E-Commerce Frontend
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.exclusions=**/*.spec.ts,**/node_modules/**,**/dist/**,**/coverage/**,**/*.module.ts,**/main.ts,**/polyfills.ts,**/environments/**
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.module.ts,**/main.ts,**/polyfills.ts,**/environments/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=coverage/frontend/lcov.info
+
+      # ----------------------------------------------------------------------
+      # Step 10: Wait for Quality Gate
+      # Checks if code meets quality standards
+      # ----------------------------------------------------------------------
+      - name: SonarCloud Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+        id: quality-gate
+
+      # ----------------------------------------------------------------------
+      # Step 11: Upload Coverage Reports as Artifacts
+      # Preserves reports for later inspection
+      # ----------------------------------------------------------------------
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-frontend
+          path: |
+            frontend/coverage/
+            frontend/dist/
+          retention-days: 30
+
+      # ----------------------------------------------------------------------
+      # Step 12: Upload Build Artifacts
+      # Preserves production build
+      # ----------------------------------------------------------------------
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: frontend-build
+          path: frontend/dist/
+          retention-days: 7
+
+      # ----------------------------------------------------------------------
+      # Step 13: Comment PR with Results
+      # Posts analysis results directly to PR
+      # ----------------------------------------------------------------------
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const qualityGateStatus = '${{ steps.quality-gate.outputs.quality-gate-status }}' || 'UNKNOWN';
+            const statusEmoji = qualityGateStatus === 'PASSED' ? '✅' : qualityGateStatus === 'FAILED' ? '❌' : '⚠️';
+
+            const body = `## ${statusEmoji} SonarCloud Analysis - Frontend (Angular)
+
+            **Quality Gate:** ${statusEmoji} \`${qualityGateStatus}\`
+
+            **Details:**
+            - 🔍 [View Full Analysis](https://sonarcloud.io/project/overview?id=ecommerce-frontend)
+            - 📊 Project Key: \`ecommerce-frontend\`
+            - 🏗️ Build: [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - 📦 Framework: Angular 20 with TypeScript
+
+            **Build Status:**
+            - Tests: ✅ Passed
+            - Build: ✅ Success
+            - Coverage: Available in artifacts
+
+            ${qualityGateStatus === 'FAILED' ? '⚠️ **Action Required:** Please fix the issues identified by SonarCloud before merging.' : ''}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      # ----------------------------------------------------------------------
+      # Step 14: Fail Job if Quality Gate Failed
+      # Ensures CI fails when quality standards are not met
+      # ----------------------------------------------------------------------
+      - name: Fail if Quality Gate failed
+        if: steps.quality-gate.outputs.quality-gate-status == 'FAILED'
+        run: |
+          echo "❌ Quality Gate failed for Frontend"
+          echo "Please review the issues at: https://sonarcloud.io/project/overview?id=ecommerce-frontend"
+          exit 1

@@ -1,5 +1,11 @@
 # 🛍️ E-Commerce Platform - Microservices Architecture
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ecommerce-user-service&metric=alert_status)](https://sonarcloud.io/project/overview?id=ecommerce-user-service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ecommerce-user-service&metric=coverage)](https://sonarcloud.io/project/overview?id=ecommerce-user-service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ecommerce-user-service&metric=bugs)](https://sonarcloud.io/project/overview?id=ecommerce-user-service)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ecommerce-user-service&metric=vulnerabilities)](https://sonarcloud.io/project/overview?id=ecommerce-user-service)
+[![CI/CD](https://github.com/VOTRE-USERNAME/safe-zone/actions/workflows/sonarqube-full.yml/badge.svg)](https://github.com/VOTRE-USERNAME/safe-zone/actions)
+
 ## 📌 Description du Projet   
 
 Plateforme e-commerce **complète et fonctionnelle** développée avec une architecture microservices utilisant **Spring Boot** pour le backend et **Angular** pour le frontend.
