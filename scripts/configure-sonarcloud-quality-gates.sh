@@ -40,7 +40,7 @@ PROJECTS=(
 )
 
 # Demander le token si non défini
-if [ -z "$SONAR_TOKEN" ]; then
+if [[ -z "$SONAR_TOKEN" ]]; then
     echo -e "${YELLOW}⚠️  Variable SONAR_TOKEN non définie${NC}"
     echo -e "${BLUE}Entrez votre token SonarCloud (sqp_xxx):${NC}"
     read -r SONAR_TOKEN
@@ -67,7 +67,7 @@ create_quality_gate() {
         "${SONAR_HOST}/api/qualitygates/list" | \
         grep -o "\"name\":\"${QUALITY_GATE_NAME}\"" || true)
 
-    if [ -n "$EXISTING_QG" ]; then
+    if [[ -n "$EXISTING_QG" ]]; then
         echo -e "${YELLOW}⚠️  Quality Gate '${QUALITY_GATE_NAME}' existe déjà${NC}"
         echo -e "${BLUE}   Récupération de l'ID...${NC}"
 
@@ -151,7 +151,7 @@ apply_quality_gate_to_project() {
         "${SONAR_HOST}/api/projects/search?projects=${project_key}" | \
         grep -o "\"key\":\"${project_key}\"" || true)
 
-    if [ -z "$PROJECT_CHECK" ]; then
+    if [[ -z "$PROJECT_CHECK" ]]; then
         echo -e "${YELLOW}  ⚠️  Projet non trouvé, ignoré${NC}"
         return
     fi

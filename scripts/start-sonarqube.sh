@@ -70,7 +70,7 @@ echo -e "${YELLOW}[2/6]${NC} Vérification de la configuration système..."
 current_max_map_count=$(sysctl -n vm.max_map_count 2>/dev/null || echo "0")
 required_max_map_count=262144
 
-if [ "$current_max_map_count" -lt "$required_max_map_count" ]; then
+if [[ "$current_max_map_count" -lt "$required_max_map_count" ]]; then
     echo -e "${YELLOW}⚠ vm.max_map_count trop bas ($current_max_map_count < $required_max_map_count)${NC}"
     echo "Tentative d'augmentation (peut nécessiter sudo)..."
 
@@ -92,9 +92,9 @@ echo ""
 echo -e "${YELLOW}[3/6]${NC} Configuration de l'environnement..."
 
 # Créer le fichier .env s'il n'existe pas
-if [ ! -f "$ENV_FILE" ]; then
+if [[ ! -f "$ENV_FILE" ]]; then
     echo -e "${YELLOW}⚠ Fichier .env non trouvé${NC}"
-    if [ -f "$ENV_EXAMPLE" ]; then
+    if [[ -f "$ENV_EXAMPLE" ]]; then
         echo "Création du fichier .env depuis .env.example..."
         cp "$ENV_EXAMPLE" "$ENV_FILE"
         echo -e "${GREEN}✓ Fichier .env créé${NC}"
@@ -145,7 +145,7 @@ cd "$PROJECT_ROOT"
 echo "Lancement des conteneurs Docker..."
 $DOCKER_COMPOSE_CMD -f docker-compose.sonarqube.yml up -d
 
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     echo -e "${GREEN}✓ Conteneurs démarrés avec succès${NC}"
 else
     echo -e "${RED}✗ Erreur lors du démarrage des conteneurs${NC}"
@@ -164,7 +164,7 @@ wait_for_sonarqube() {
     local max_attempts=60
     local attempt=1
 
-    while [ $attempt -le $max_attempts ]; do
+    while [[ $attempt -le $max_attempts ]]; do
         if curl -s http://localhost:9000/api/system/status | grep -q "UP"; then
             return 0
         fi

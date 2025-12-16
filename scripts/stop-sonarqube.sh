@@ -40,7 +40,7 @@ if docker ps -a | grep -q "ecommerce-sonarqube"; then
     echo "Arrêt des conteneurs SonarQube..."
     $DOCKER_COMPOSE_CMD -f docker-compose.sonarqube.yml down
 
-    if [ $? -eq 0 ]; then
+    if [[ $? -eq 0 ]]; then
         echo -e "${GREEN}✓ SonarQube arrêté avec succès${NC}"
     else
         echo -e "${RED}✗ Erreur lors de l'arrêt${NC}"

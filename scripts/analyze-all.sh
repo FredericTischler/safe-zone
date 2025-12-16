@@ -23,15 +23,15 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Vérifier le token
-if [ -z "$SONAR_TOKEN" ]; then
+if [[ -z "$SONAR_TOKEN" ]]; then
     echo -e "${YELLOW}⚠ Variable SONAR_TOKEN non définie${NC}"
     echo ""
     echo "Chargement depuis .env..."
 
-    if [ -f "$PROJECT_ROOT/.env" ]; then
+    if [[ -f "$PROJECT_ROOT/.env" ]]; then
         export $(grep -v '^#' "$PROJECT_ROOT/.env" | xargs)
 
-        if [ -z "$SONAR_TOKEN" ]; then
+        if [[ -z "$SONAR_TOKEN" ]]; then
             echo -e "${RED}✗ SONAR_TOKEN non trouvé dans .env${NC}"
             echo ""
             echo "Ajoutez votre token dans le fichier .env :"
@@ -112,7 +112,7 @@ if ! npm list sonarqube-scanner &> /dev/null; then
 fi
 
 # Vérifier si sonar-project.properties existe
-if [ ! -f "sonar-project.properties" ]; then
+if [[ ! -f "sonar-project.properties" ]]; then
     echo -e "${YELLOW}⚠ Création de sonar-project.properties...${NC}"
     cat > sonar-project.properties << 'EOF'
 sonar.projectKey=ecommerce-frontend
@@ -167,7 +167,7 @@ echo ""
 echo -e "Total de services analysés : ${TOTAL_SERVICES}"
 echo -e "${GREEN}Succès : ${SUCCESS_COUNT}${NC}"
 
-if [ $FAILED_COUNT -gt 0 ]; then
+if [[ $FAILED_COUNT -gt 0 ]]; then
     echo -e "${RED}Échecs : ${FAILED_COUNT}${NC}"
     echo ""
     echo -e "${YELLOW}Services en échec :${NC}"
@@ -180,7 +180,7 @@ echo ""
 echo -e "${BLUE}📊 Interface SonarQube :${NC} http://localhost:9000"
 echo ""
 
-if [ $FAILED_COUNT -eq 0 ]; then
+if [[ $FAILED_COUNT -eq 0 ]]; then
     echo -e "${GREEN}✓ Toutes les analyses ont réussi !${NC}"
     echo ""
     exit 0
