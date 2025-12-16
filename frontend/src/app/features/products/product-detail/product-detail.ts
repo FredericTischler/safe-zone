@@ -38,12 +38,12 @@ export class ProductDetail implements OnInit {
   quantity = 1;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private productService: Product,
-    private mediaService: MediaService,
-    private cartService: Cart,
-    private snackBar: MatSnackBar
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly productService: Product,
+    private readonly mediaService: MediaService,
+    private readonly cartService: Cart,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -110,19 +110,22 @@ export class ProductDetail implements OnInit {
   }
 
   addToCart(): void {
-    if (!this.product) return;
+    const product = this.product;
+    if (!product) {
+      return;
+    }
 
     // Vérifier si le panier + la quantité actuelle ne dépasse pas le stock
     const currentCart = this.cartService.getCartItems();
-    const existingItem = currentCart.find(item => item.productId === this.product!.id);
+    const existingItem = currentCart.find(item => item.productId === product.id);
     const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
 
-    if (currentQuantityInCart + this.quantity > this.product.stock) {
-      const remaining = this.product.stock - currentQuantityInCart;
+    if (currentQuantityInCart + this.quantity > product.stock) {
+      const remaining = product.stock - currentQuantityInCart;
       this.snackBar.open(
         remaining > 0 
           ? `Stock insuffisant ! Seulement ${remaining} disponible(s) en plus` 
-          : `Stock maximum déjà atteint (${this.product.stock} en stock)`,
+          : `Stock maximum déjà atteint (${product.stock} en stock)`,
         'Fermer',
         {
           duration: 4000,
@@ -136,16 +139,16 @@ export class ProductDetail implements OnInit {
 
     // Utiliser le service Cart
     this.cartService.addToCart({
-      productId: this.product.id,
-      name: this.product.name,
-      price: this.product.price,
+      productId: product.id,
+      name: product.name,
+      price: product.price,
       quantity: this.quantity,
       imageUrl: this.images[0] || null,
-      stock: this.product.stock
+      stock: product.stock
     });
 
     // Notification
-    this.snackBar.open(`${this.quantity} x ${this.product.name} ajouté au panier`, 'Voir le panier', {
+    this.snackBar.open(`${this.quantity} x ${product.name} ajouté au panier`, 'Voir le panier', {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'bottom',

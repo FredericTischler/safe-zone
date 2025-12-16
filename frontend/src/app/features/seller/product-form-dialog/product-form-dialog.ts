@@ -58,10 +58,10 @@ export class ProductFormDialog implements OnInit {
   ];
 
   constructor(
-    private fb: FormBuilder,
-    private productService: ProductService,
-    private mediaService: MediaService,
-    public dialogRef: MatDialogRef<ProductFormDialog>,
+    private readonly fb: FormBuilder,
+    private readonly productService: ProductService,
+    private readonly mediaService: MediaService,
+    public readonly dialogRef: MatDialogRef<ProductFormDialog>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {
     this.productForm = this.fb.group({

@@ -33,9 +33,9 @@ export class Login {
   errorMessage = '';
 
   constructor(
-    private fb: FormBuilder,
-    private authService: Auth,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: Auth,
+    private readonly router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],

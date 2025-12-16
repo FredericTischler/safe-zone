@@ -14,12 +14,12 @@ export class Auth {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
   
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUser());
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
-    private http: HttpClient,
-    private cartService: Cart
+    private readonly http: HttpClient,
+    private readonly cartService: Cart
   ) { }
 
   /**

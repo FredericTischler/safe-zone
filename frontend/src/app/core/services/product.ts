@@ -11,7 +11,7 @@ export class Product {
   private readonly apiBase = resolveApiBase(8082);
   private readonly API_URL = `${this.apiBase}/api/products`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   /**
    * Récupérer tous les produits

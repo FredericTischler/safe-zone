@@ -11,7 +11,7 @@ export class MediaService {
   private readonly apiBase = resolveApiBase(8083);
   private readonly API_URL = `${this.apiBase}/api/media`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   /**
    * Uploader une image pour un produit

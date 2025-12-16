@@ -34,9 +34,9 @@ export class CartPage implements OnInit {
   displayedColumns: string[] = ['image', 'name', 'price', 'quantity', 'total', 'actions'];
 
   constructor(
-    private cartService: Cart,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private readonly cartService: Cart,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {

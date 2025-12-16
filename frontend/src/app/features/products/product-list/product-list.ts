@@ -45,12 +45,12 @@ export class ProductList implements OnInit {
   cartCount = 0;
 
   constructor(
-    private productService: Product,
-    private mediaService: MediaService,
-    private cartService: Cart,
-    private authService: Auth,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private readonly productService: Product,
+    private readonly mediaService: MediaService,
+    private readonly cartService: Cart,
+    private readonly authService: Auth,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -210,4 +210,3 @@ export class ProductList implements OnInit {
     this.router.navigate(['/cart']);
   }
 }
-

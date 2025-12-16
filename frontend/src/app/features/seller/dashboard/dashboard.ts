@@ -40,11 +40,11 @@ export class Dashboard implements OnInit {
   private readonly authApiBase = resolveApiBase(8081);
 
   constructor(
-    private productService: Product,
-    private authService: Auth,
-    private router: Router,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private readonly productService: Product,
+    private readonly authService: Auth,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {

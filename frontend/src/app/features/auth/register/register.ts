@@ -38,9 +38,9 @@ export class Register {
   avatarPreview: string | null = null;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: Auth,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: Auth,
+    private readonly router: Router
   ) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],

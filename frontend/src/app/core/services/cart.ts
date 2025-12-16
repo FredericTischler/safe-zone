@@ -6,7 +6,7 @@ import { CartItem } from '../models/cart.model';
   providedIn: 'root',
 })
 export class Cart {
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>(this.getCartFromStorage());
+  private readonly cartItemsSubject = new BehaviorSubject<CartItem[]>(this.getCartFromStorage());
   public cartItems$: Observable<CartItem[]> = this.cartItemsSubject.asObservable();
 
   constructor() {}
