@@ -51,16 +51,13 @@
           @if (images.length > 1) {
             <div class="thumbnail-container">
               @for (image of images; track image; let i = $index) {
-                <div 
+                <button 
+                  type="button"
                   class="thumbnail" 
-                  tabindex="0"
-                  role="button"
                   aria-label="Voir l'image {{ i + 1 }} de {{ product.name }}"
-                  (click)="selectImage(i)"
-                  (keydown.enter)="selectImage(i)"
-                  (keydown.space)="selectImage(i)">
+                  (click)="selectImage(i)">
                   <img [src]="image" [alt]="product.name + ' - vue ' + (i + 1)">
-                </div>
+                </button>
               }
             </div>
           }
