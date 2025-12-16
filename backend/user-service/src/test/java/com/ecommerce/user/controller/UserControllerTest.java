@@ -108,12 +108,33 @@ class UserControllerTest {
     }
 
     @Test
+    void updateProfile_shouldReturnBadRequestWhenServiceThrows() throws Exception {
+        when(userService.updateProfile("alice@mail.com", "New", "/img.png"))
+            .thenThrow(new RuntimeException("Invalid data"));
+
+        mockMvc.perform(put("/api/users/profile")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("name", "New", "avatar", "/img.png"))))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Invalid data"));
+    }
+
+    @Test
     void uploadAvatar_shouldReturnUrl() throws Exception {
         when(userService.uploadAvatar(any(), any())).thenReturn("/uploads/avatars/file.png");
 
         mockMvc.perform(multipart("/api/users/avatar").file("file", "img".getBytes()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.avatarUrl").value("/uploads/avatars/file.png"));
+    }
+
+    @Test
+    void uploadAvatar_shouldReturnBadRequestWhenServiceThrows() throws Exception {
+        when(userService.uploadAvatar(any(), any())).thenThrow(new RuntimeException("invalid file"));
+
+        mockMvc.perform(multipart("/api/users/avatar").file("file", "img".getBytes()))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("invalid file"));
     }
 
     @Test
@@ -137,5 +158,14 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users/id"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.error").value("Utilisateur non trouvé"));
+    }
+
+    @Test
+    void getUserById_shouldReturnServerErrorOnException() throws Exception {
+        when(userService.getUserById("id")).thenThrow(new RuntimeException("boom"));
+
+        mockMvc.perform(get("/api/users/id"))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value("boom"));
     }
 }

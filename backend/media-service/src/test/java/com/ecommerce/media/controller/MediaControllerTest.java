@@ -110,6 +110,19 @@ class MediaControllerTest {
     }
 
     @Test
+    void uploadMedia_shouldHandleGenericExceptions() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "image.png", "image/png", "data".getBytes());
+        Mockito.when(mediaService.uploadMedia(any(), any(), any())).thenThrow(new RuntimeException("boom"));
+
+        mockMvc.perform(multipart("/api/media/upload")
+                .file(file)
+                .param("productId", "product")
+                .requestAttr("userId", "seller"))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value(org.hamcrest.Matchers.containsString("boom")));
+    }
+
+    @Test
     void getMediaByProduct_shouldReturnList() throws Exception {
         Mockito.when(mediaService.getMediaByProductId("product")).thenReturn(List.of(sampleResponse()));
 
@@ -134,6 +147,26 @@ class MediaControllerTest {
 
         mockMvc.perform(get("/api/media/file/product/file.png"))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void downloadFile_shouldSetJpegContentType() throws Exception {
+        ByteArrayResource resource = new ByteArrayResource("data".getBytes());
+        Mockito.when(mediaService.getMediaFile("product", "file.jpg")).thenReturn(resource);
+
+        mockMvc.perform(get("/api/media/file/product/file.jpg"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    void downloadFile_shouldSetWebpContentType() throws Exception {
+        ByteArrayResource resource = new ByteArrayResource("data".getBytes());
+        Mockito.when(mediaService.getMediaFile("product", "file.webp")).thenReturn(resource);
+
+        mockMvc.perform(get("/api/media/file/product/file.webp"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Content-Type", "image/webp"));
     }
 
     @Test

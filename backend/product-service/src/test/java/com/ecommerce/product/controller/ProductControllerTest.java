@@ -88,6 +88,15 @@ class ProductControllerTest {
     }
 
     @Test
+    void getProductById_shouldReturnProductWhenPresent() throws Exception {
+        Mockito.when(productService.getProductById("id")).thenReturn(Optional.of(sampleResponse()));
+
+        mockMvc.perform(get("/api/products/id"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("id"));
+    }
+
+    @Test
     void createProduct_shouldReturnCreatedProduct() throws Exception {
         ProductRequest request = new ProductRequest("Phone", "Desc", 10.0, "Tech", 5);
         Mockito.when(productService.createProduct(any(), eq("seller-1"), eq("Alice")))
@@ -100,6 +109,21 @@ class ProductControllerTest {
                 .requestAttr("userName", "Alice"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.sellerId").value("seller-1"));
+    }
+
+    @Test
+    void createProduct_shouldReturnBadRequestWhenServiceThrows() throws Exception {
+        ProductRequest request = new ProductRequest("Phone", "Desc", 10.0, "Tech", 5);
+        Mockito.when(productService.createProduct(any(), any(), any()))
+            .thenThrow(new RuntimeException("Invalid data"));
+
+        mockMvc.perform(post("/api/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .requestAttr("userId", "seller-1")
+                .requestAttr("userName", "Alice"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Invalid data"));
     }
 
     @Test
@@ -117,11 +141,45 @@ class ProductControllerTest {
     }
 
     @Test
+    void updateProduct_shouldReturnUpdatedProduct() throws Exception {
+        ProductRequest request = new ProductRequest("Phone", "Desc", 10.0, "Tech", 5);
+        Mockito.when(productService.updateProduct(eq("id"), any(), eq("seller-1")))
+            .thenReturn(sampleResponse());
+
+        mockMvc.perform(put("/api/products/id")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .requestAttr("userId", "seller-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("id"));
+    }
+
+    @Test
     void deleteProduct_shouldReturnSuccess() throws Exception {
         mockMvc.perform(delete("/api/products/id").requestAttr("userId", "seller-1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("Product deleted successfully"));
         Mockito.verify(productService).deleteProduct("id", "seller-1");
+    }
+
+    @Test
+    void deleteProduct_shouldReturnForbiddenWhenNotOwner() throws Exception {
+        Mockito.doThrow(new RuntimeException("You are not authorized to delete this product"))
+            .when(productService).deleteProduct("id", "seller-1");
+
+        mockMvc.perform(delete("/api/products/id").requestAttr("userId", "seller-1"))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error").value("You are not authorized to delete this product"));
+    }
+
+    @Test
+    void deleteProduct_shouldReturnNotFoundWhenMissing() throws Exception {
+        Mockito.doThrow(new RuntimeException("Product not found"))
+            .when(productService).deleteProduct("id", "seller-1");
+
+        mockMvc.perform(delete("/api/products/id").requestAttr("userId", "seller-1"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Product not found"));
     }
 
     @Test

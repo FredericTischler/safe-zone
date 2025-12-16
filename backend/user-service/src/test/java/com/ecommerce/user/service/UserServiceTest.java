@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -249,6 +250,25 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.uploadAvatar("ghost@mail.com", file))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Utilisateur non trouvé");
+    }
+
+    @Test
+    void uploadAvatar_shouldWrapIoExceptions() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getContentType()).thenReturn("image/png");
+        when(file.getOriginalFilename()).thenReturn("avatar.png");
+        when(file.getInputStream()).thenThrow(new IOException("disk full"));
+
+        User user = new User();
+        user.setId("user-1");
+        user.setEmail("alice@mail.com");
+        when(userRepository.findByEmail("alice@mail.com")).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.uploadAvatar("alice@mail.com", file))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Erreur lors de l'upload");
     }
 
     @Test
