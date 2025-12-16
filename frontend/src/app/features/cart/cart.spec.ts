@@ -46,6 +46,7 @@ describe('CartPage', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     spyOn(router, 'navigate');
+    (component as any).snackBar = snackBar;
     fixture.detectChanges();
   });
 
@@ -53,13 +54,13 @@ describe('CartPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load cart items on init', () => {
+  it('should load cart items when loading cart', () => {
     const items: CartItem[] = [
       { productId: '1', name: 'Product 1', price: 10, quantity: 2, imageUrl: null },
     ];
     (cartService.getCartItems as jasmine.Spy).and.returnValue(items);
 
-    component.ngOnInit();
+    component.loadCart();
 
     expect(cartService.getCartItems).toHaveBeenCalled();
     expect(component.cartItems).toEqual(items);

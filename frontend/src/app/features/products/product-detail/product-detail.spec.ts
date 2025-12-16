@@ -90,6 +90,7 @@ describe('ProductDetail', () => {
     router = TestBed.inject(Router);
     route = TestBed.inject(ActivatedRoute);
     spyOn(router, 'navigate');
+    (component as any).snackBar = snackBar;
   });
 
   it('should create', () => {

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -231,15 +231,17 @@ describe('ProductList', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('should handle search error', () => {
+  it('should handle search error', fakeAsync(() => {
+    spyOn(console, 'error');
     component.searchKeyword = 'phone';
     productService.searchProducts.and.returnValue(throwError(() => new Error('Search error')));
 
-    component.onSearch();
+    expect(() => component.onSearch()).not.toThrow();
+    tick();
 
     expect(component.errorMessage).toContain('Erreur lors de la recherche');
     expect(component.loading).toBeFalse();
-  });
+  }));
 
   it('should handle empty search results', () => {
     component.searchKeyword = 'nonexistent';
