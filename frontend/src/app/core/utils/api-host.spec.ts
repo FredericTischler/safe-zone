@@ -16,4 +16,25 @@ describe('api host utilities', () => {
     expect(resolveApiProtocol()).toBe('https:');
     expect(resolveApiBase(4200)).toBe('https://app.local:4200');
   });
+
+  it('should handle protocol with trailing colon', () => {
+    __setMockLocation({ hostname: 'example.com', protocol: 'https:' } as Location);
+
+    expect(resolveApiBase(3000)).toBe('https://example.com:3000');
+  });
+
+  it('should clear mock location', () => {
+    __setMockLocation({ hostname: 'first.com', protocol: 'https:' } as Location);
+    expect(resolveApiHost()).toBe('first.com');
+
+    __setMockLocation(undefined);
+    expect(resolveApiHost()).toBe('localhost');
+  });
+
+  it('should handle partial location object', () => {
+    __setMockLocation({ hostname: 'partial.com' } as Location);
+
+    expect(resolveApiHost()).toBe('partial.com');
+    expect(resolveApiProtocol()).toBe('http:');
+  });
 });

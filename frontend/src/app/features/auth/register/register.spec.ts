@@ -162,4 +162,65 @@ describe('Register', () => {
     expect(authSpy.uploadAvatar).toHaveBeenCalledWith(file, 'jwt');
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
+
+  it('should redirect even if login fails after registration with avatar', fakeAsync(() => {
+    component.registerForm.setValue({
+      name: 'Alice',
+      email: 'alice@mail.com',
+      password: 'password',
+      role: 'CLIENT',
+    });
+    const file = new File(['img'], 'avatar.png', { type: 'image/png' });
+    component.selectedAvatar = file;
+
+    authSpy.register.and.returnValue(of({}));
+    authSpy.login.and.returnValue(throwError(() => new Error('Login failed')));
+
+    component.onSubmit();
+    tick(2000);
+
+    expect(authSpy.login).toHaveBeenCalled();
+    expect(authSpy.uploadAvatar).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(component.successMessage).toContain('Compte créé');
+  }));
+
+  it('should redirect even if avatar upload fails', fakeAsync(() => {
+    component.registerForm.setValue({
+      name: 'Alice',
+      email: 'alice@mail.com',
+      password: 'password',
+      role: 'CLIENT',
+    });
+    const file = new File(['img'], 'avatar.png', { type: 'image/png' });
+    component.selectedAvatar = file;
+
+    authSpy.register.and.returnValue(of({}));
+    authSpy.login.and.returnValue(of({
+      token: 'jwt',
+      userId: '1',
+      email: 'alice@mail.com',
+      name: 'Alice',
+      role: 'CLIENT',
+      avatar: '',
+      type: 'Bearer',
+    }));
+    authSpy.uploadAvatar.and.returnValue(throwError(() => new Error('Upload failed')));
+
+    component.onSubmit();
+    tick(2000);
+
+    expect(authSpy.uploadAvatar).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(component.successMessage).toContain('Compte créé');
+  }));
+
+  it('should handle empty file input', () => {
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [] });
+
+    component.onAvatarSelected({ target: input } as unknown as Event);
+
+    expect(component.selectedAvatar).toBeNull();
+  });
 });

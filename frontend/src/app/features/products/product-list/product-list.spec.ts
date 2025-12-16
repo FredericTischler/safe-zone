@@ -169,4 +169,104 @@ describe('ProductList', () => {
     component.goToCart();
     expect(router.navigate).toHaveBeenCalledWith(['/cart']);
   });
+
+  it('should handle error when loading products', () => {
+    productService.getAllProducts.and.returnValue(throwError(() => new Error('Product service error')));
+
+    component.loadProducts();
+
+    expect(component.errorMessage).toContain('Impossible de charger les produits');
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should handle empty product list', () => {
+    productService.getAllProducts.and.returnValue(of([]));
+
+    component.loadProducts();
+
+    expect(component.products).toEqual([]);
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should handle forkJoin error when loading images', () => {
+    const product: ProductModel = {
+      id: '1',
+      name: 'Phone',
+      description: 'Flagship',
+      price: 100,
+      category: 'Tech',
+      stock: 5,
+      sellerId: 'seller',
+      sellerName: 'Seller',
+    };
+    productService.getAllProducts.and.returnValue(of([product]));
+    mediaService.getMediaByProduct.and.returnValue(of([{
+      id: 'm1',
+      productId: '1',
+      filename: 'image.png',
+      contentType: 'image/png',
+      size: 1000,
+      uploadedBy: 'seller',
+      url: '/image.png',
+      uploadedAt: new Date(),
+    }]));
+    let forkJoinErrorCallback: any = null;
+    spyOn(component as any, 'loadProducts').and.callFake(() => {
+      component.loading = true;
+      component.errorMessage = '';
+      productService.getAllProducts().subscribe({
+        next: (products) => {
+          component.products = products;
+          component.loading = false;
+        },
+        error: (error) => {
+          component.errorMessage = 'Error';
+          component.loading = false;
+        }
+      });
+    });
+
+    component.loadProducts();
+
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should handle search error', () => {
+    component.searchKeyword = 'phone';
+    productService.searchProducts.and.returnValue(throwError(() => new Error('Search error')));
+
+    component.onSearch();
+
+    expect(component.errorMessage).toContain('Erreur lors de la recherche');
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should handle empty search results', () => {
+    component.searchKeyword = 'nonexistent';
+    productService.searchProducts.and.returnValue(of([]));
+
+    component.onSearch();
+
+    expect(component.products).toEqual([]);
+    expect(component.loading).toBeFalse();
+  });
+
+  it('should navigate to cart when snackbar action is clicked', () => {
+    const snackBarRef = {
+      onAction: () => of(true),
+    };
+    snackBar.open.and.returnValue(snackBarRef as any);
+
+    component.addToCart({ id: '1', name: 'Phone', stock: 5, price: 100, imageUrl: null });
+
+    expect((cartService.addToCart as jasmine.Spy)).toHaveBeenCalled();
+  });
+
+  it('should update cart count from cart items subscription', () => {
+    spyOn(cartService, 'getCartCount').and.returnValue(3);
+
+    cartStream.next([{ productId: '1', quantity: 1, name: 'Test', price: 100, imageUrl: null }]);
+
+    expect(component.cartCount).toBe(3);
+  });
 });
