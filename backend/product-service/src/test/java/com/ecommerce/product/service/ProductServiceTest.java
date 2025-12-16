@@ -148,4 +148,67 @@ class ProductServiceTest {
         assertThat(response.getName()).isEqualTo("name");
         verify(kafkaTemplate).send(eq("product-events"), any(ProductEvent.class));
     }
+
+    @Test
+    void deleteProduct_shouldThrowWhenCallerIsNotOwner() {
+        Product product = new Product();
+        product.setId("product-1");
+        product.setSellerId("owner-1");
+        when(productRepository.findById("product-1")).thenReturn(Optional.of(product));
+
+        assertThatThrownBy(() -> productService.deleteProduct("product-1", "another"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("not authorized");
+
+        verify(productRepository, never()).delete(any(Product.class));
+        verify(kafkaTemplate, never()).send(anyString(), any());
+    }
+
+    @Test
+    void updateProduct_shouldThrowWhenProductDoesNotExist() {
+        when(productRepository.findById("missing")).thenReturn(Optional.empty());
+        ProductRequest request = new ProductRequest("Phone", "Desc", 10.0, "Tech", 1);
+
+        assertThatThrownBy(() -> productService.updateProduct("missing", request, "seller"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Product not found");
+    }
+
+    @Test
+    void getProductsBySeller_shouldMapResults() {
+        Product product = new Product();
+        product.setId("product-1");
+        product.setSellerId("seller-1");
+        when(productRepository.findBySellerId("seller-1")).thenReturn(List.of(product));
+
+        List<ProductResponse> responses = productService.getProductsBySeller("seller-1");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getId()).isEqualTo("product-1");
+    }
+
+    @Test
+    void getProductsByCategory_shouldReturnResponses() {
+        Product product = new Product();
+        product.setId("product-2");
+        product.setCategory("tech");
+        when(productRepository.findByCategory("tech")).thenReturn(List.of(product));
+
+        List<ProductResponse> responses = productService.getProductsByCategory("tech");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getCategory()).isEqualTo("tech");
+    }
+
+    @Test
+    void searchProducts_shouldDelegateToRepository() {
+        Product product = new Product();
+        product.setId("product-3");
+        when(productRepository.findByNameContainingIgnoreCase("phone")).thenReturn(List.of(product));
+
+        List<ProductResponse> responses = productService.searchProducts("phone");
+
+        assertThat(responses).hasSize(1);
+        verify(productRepository).findByNameContainingIgnoreCase("phone");
+    }
 }

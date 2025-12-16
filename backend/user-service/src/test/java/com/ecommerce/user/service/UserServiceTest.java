@@ -205,8 +205,60 @@ class UserServiceTest {
         }
     }
 
-    //@Test
-    //void intentionallyFailingTest_shouldAlwaysFail() {
-     //  assertThat("expected to fail").isEqualTo("this will never match");
-    //}
+    @Test
+    void uploadAvatar_shouldRejectEmptyFile() {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.uploadAvatar("alice@mail.com", file))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("vide");
+    }
+
+    @Test
+    void uploadAvatar_shouldRejectOversizedFile() {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getSize()).thenReturn(6 * 1024 * 1024L);
+
+        assertThatThrownBy(() -> userService.uploadAvatar("alice@mail.com", file))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("dépasser 5MB");
+    }
+
+    @Test
+    void uploadAvatar_shouldRejectInvalidContentType() {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getContentType()).thenReturn("text/plain");
+
+        assertThatThrownBy(() -> userService.uploadAvatar("alice@mail.com", file))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("image");
+    }
+
+    @Test
+    void uploadAvatar_shouldThrowWhenUserNotFound() {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getContentType()).thenReturn("image/png");
+        when(userRepository.findByEmail("ghost@mail.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.uploadAvatar("ghost@mail.com", file))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Utilisateur non trouvé");
+    }
+
+    @Test
+    void getUserById_shouldDelegateToRepository() {
+        User user = new User();
+        when(userRepository.findById("id")).thenReturn(Optional.of(user));
+
+        Optional<User> result = userService.getUserById("id");
+
+        assertThat(result).contains(user);
+        verify(userRepository).findById("id");
+    }
 }

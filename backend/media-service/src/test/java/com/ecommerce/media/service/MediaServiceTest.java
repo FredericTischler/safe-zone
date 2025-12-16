@@ -134,6 +134,17 @@ class MediaServiceTest {
     }
 
     @Test
+    void uploadMedia_shouldRejectWhenFileIsTooLarge() {
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.isEmpty()).thenReturn(false);
+        when(multipartFile.getSize()).thenReturn(5 * 1024 * 1024L);
+
+        assertThatThrownBy(() -> mediaService.uploadMedia(multipartFile, "product", "seller"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("dépasse 2 MB");
+    }
+
+    @Test
     void getMediaByProductId_shouldMapResponses() {
         Media media = new Media();
         media.setId("id");
@@ -165,6 +176,17 @@ class MediaServiceTest {
     }
 
     @Test
+    void deleteMedia_shouldThrowWhenMediaIsUnknown() {
+        when(mediaRepository.findById("missing")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mediaService.deleteMedia("missing", "seller"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Média non trouvé");
+
+        verify(mediaRepository, never()).delete(any());
+    }
+
+    @Test
     void deleteAllByProductId_shouldDeleteFilesAndRecords() throws Exception {
         Path productDir = Files.createDirectories(tempDir.resolve("product-1"));
         Path file = productDir.resolve("file.png");
@@ -178,6 +200,7 @@ class MediaServiceTest {
         mediaService.deleteAllByProductId("product-1");
 
         assertThat(Files.exists(file)).isFalse();
+        assertThat(Files.exists(productDir)).isFalse();
         verify(mediaRepository).deleteAllByProductId("product-1");
     }
 }
