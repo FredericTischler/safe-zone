@@ -14,7 +14,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

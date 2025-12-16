@@ -23,7 +23,7 @@ class KafkaConsumerServiceTest {
     private MediaService mediaService;
 
     @Test
-    void consumeProductEvent_shouldTriggerDeletionOnDeletedEvent() throws Exception {
+    void consumeProductEvent_shouldTriggerDeletionOnDeletedEvent() throws IOException {
         ProductEvent event = new ProductEvent("DELETED", "product-1", "Phone", "seller-1", LocalDateTime.now());
 
         kafkaConsumerService.consumeProductEvent(event);
@@ -32,7 +32,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void consumeProductEvent_shouldIgnoreOtherEvents() throws Exception {
+    void consumeProductEvent_shouldIgnoreOtherEvents() {
         ProductEvent event = new ProductEvent("CREATED", "product-1", "Phone", "seller-1", LocalDateTime.now());
 
         kafkaConsumerService.consumeProductEvent(event);
@@ -41,7 +41,7 @@ class KafkaConsumerServiceTest {
     }
 
     @Test
-    void consumeProductEvent_shouldSwallowIoExceptionsFromService() throws Exception {
+    void consumeProductEvent_shouldSwallowIoExceptionsFromService() throws IOException {
         ProductEvent event = new ProductEvent("DELETED", "product-1", "Phone", "seller-1", LocalDateTime.now());
         doThrow(new IOException("boom")).when(mediaService).deleteAllByProductId("product-1");
 

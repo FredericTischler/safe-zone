@@ -3,7 +3,6 @@ package com.ecommerce.media.controller;
 import com.ecommerce.media.dto.MediaResponse;
 import com.ecommerce.media.security.JwtAuthenticationFilter;
 import com.ecommerce.media.service.MediaService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +14,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
