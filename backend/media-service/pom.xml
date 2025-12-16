@@ -34,6 +34,18 @@
         <!-- Exclusions SonarQube -->
         <sonar.exclusions>**/config/**,**/dto/**,**/entity/**,**/*Application.java</sonar.exclusions>
         <sonar.coverage.exclusions>**/config/**,**/dto/**,**/entity/**,**/*Application.java</sonar.coverage.exclusions>
+        <!-- Ignore all issues reported on test sources -->
+        <sonar.issue.ignore.multicriteria>e1,e2,e3,e4,e5</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.e1.ruleKey>*</sonar.issue.ignore.multicriteria.e1.ruleKey>
+        <sonar.issue.ignore.multicriteria.e1.filePattern>**/src/test/**</sonar.issue.ignore.multicriteria.e1.filePattern>
+        <sonar.issue.ignore.multicriteria.e2.ruleKey>*</sonar.issue.ignore.multicriteria.e2.ruleKey>
+        <sonar.issue.ignore.multicriteria.e2.filePattern>**/*Test.java</sonar.issue.ignore.multicriteria.e2.filePattern>
+        <sonar.issue.ignore.multicriteria.e3.ruleKey>*</sonar.issue.ignore.multicriteria.e3.ruleKey>
+        <sonar.issue.ignore.multicriteria.e3.filePattern>**/*Tests.java</sonar.issue.ignore.multicriteria.e3.filePattern>
+        <sonar.issue.ignore.multicriteria.e4.ruleKey>*</sonar.issue.ignore.multicriteria.e4.ruleKey>
+        <sonar.issue.ignore.multicriteria.e4.filePattern>**/*IT.java</sonar.issue.ignore.multicriteria.e4.filePattern>
+        <sonar.issue.ignore.multicriteria.e5.ruleKey>*</sonar.issue.ignore.multicriteria.e5.ruleKey>
+        <sonar.issue.ignore.multicriteria.e5.filePattern>**/*ITCase.java</sonar.issue.ignore.multicriteria.e5.filePattern>
     </properties>
 
     <dependencies>
