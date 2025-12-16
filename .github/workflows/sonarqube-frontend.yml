@@ -163,8 +163,8 @@ jobs:
             -Dsonar.sources=src
             -Dsonar.tests=src
             -Dsonar.test.inclusions=**/*.spec.ts
-            -Dsonar.exclusions=**/*.spec.ts,**/node_modules/**,**/dist/**,**/coverage/**,**/*.module.ts,**/main.ts,**/polyfills.ts,**/environments/**
-            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.module.ts,**/main.ts,**/polyfills.ts,**/environments/**
+            -Dsonar.exclusions=**/*.spec.ts,**/node_modules/**,**/dist/**,**/coverage/**,**/app.config.ts,**/app.routes.ts,**/models/**
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/app.config.ts,**/app.routes.ts,**/models/**,**/environments/**
             -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info
             -Dsonar.typescript.lcov.reportPaths=coverage/frontend/lcov.info
 
