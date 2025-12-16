@@ -107,9 +107,9 @@
             </div>
 
             <!-- Quantity Selector -->
-            <div class="quantity-section">
-              <span class="quantity-label" id="quantity-label">Quantité :</span>
-              <div class="quantity-controls" role="group" aria-labelledby="quantity-label">
+            <fieldset class="quantity-section">
+              <legend class="quantity-label">Quantité</legend>
+              <div class="quantity-controls">
                 <button 
                   mat-icon-button 
                   (click)="decreaseQuantity()"
@@ -124,7 +124,7 @@
                   <mat-icon>add</mat-icon>
                 </button>
               </div>
-            </div>
+            </fieldset>
 
             <!-- Add to Cart Button -->
             <div class="actions">

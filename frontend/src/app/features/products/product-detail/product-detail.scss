@@ -182,18 +182,18 @@
       }
 
       &.in-stock {
-        background-color: #e8f5e9;
-        color: #2e7d32;
+        background-color: #ecfdf5;
+        color: #166534;
       }
 
       &.low-stock {
-        background-color: #fff3e0;
-        color: #f57c00;
+        background-color: #fff7ed;
+        color: #9a3412;
       }
 
       &.out-of-stock {
-        background-color: #ffebee;
-        color: #c62828;
+        background-color: #fef2f2;
+        color: #b91c1c;
       }
     }
 
@@ -241,8 +241,10 @@
     }
   }
 
-  .quantity-section {
+  fieldset.quantity-section {
     margin-bottom: 24px;
+    border: none;
+    padding: 0;
 
     .quantity-label {
       display: block;
