@@ -145,7 +145,7 @@ jobs:
       # Sends code and coverage data to SonarCloud
       # ----------------------------------------------------------------------
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v2.3.0  # Pinned to specific version for security
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

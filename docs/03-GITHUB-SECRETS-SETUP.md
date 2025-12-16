@@ -690,7 +690,7 @@ ${{ secrets.NOM_DU_SECRET }}
 
 ```yaml
 - name: SonarCloud Scan Frontend
-  uses: SonarSource/sonarcloud-github-action@master
+  uses: SonarSource/sonarcloud-github-action@v2.3.0
   env:
     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   with:
