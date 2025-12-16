@@ -24,13 +24,13 @@ mat-card-header {
 mat-card-title {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: #111827;
   margin: 0;
 }
 
 mat-card-subtitle {
   font-size: 14px;
-  color: #666;
+  color: #4b5563;
   margin-top: 8px;
 }
 
@@ -76,10 +76,10 @@ button[type="submit"] {
   text-align: center;
   margin-top: 16px;
   font-size: 14px;
-  color: #666;
+  color: #1f2933;
 
   a {
-    color: #667eea;
+    color: #1d4ed8;
     text-decoration: none;
     font-weight: 500;
 
@@ -107,7 +107,7 @@ mat-spinner {
     gap: 8px;
     margin-bottom: 12px;
     font-weight: 500;
-    color: #555;
+    color: #111827;
   }
 
   button {
@@ -142,7 +142,7 @@ mat-spinner {
 
   .avatar-hint {
     font-size: 12px;
-    color: #999;
+    color: #475569;
     margin-top: 8px;
   }
 }

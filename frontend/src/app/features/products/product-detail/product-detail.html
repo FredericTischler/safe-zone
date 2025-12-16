@@ -55,7 +55,7 @@
                   class="thumbnail" 
                   [class.active]="i === selectedImageIndex"
                   (click)="selectImage(i)">
-                  <img [src]="image" [alt]="'Image ' + (i + 1)">
+                  <img [src]="image" [alt]="product.name + ' - vue ' + (i + 1)">
                 </div>
               }
             </div>
@@ -108,8 +108,8 @@
 
             <!-- Quantity Selector -->
             <div class="quantity-section">
-              <label>Quantité :</label>
-              <div class="quantity-controls">
+              <span class="quantity-label" id="quantity-label">Quantité :</span>
+              <div class="quantity-controls" role="group" aria-labelledby="quantity-label">
                 <button 
                   mat-icon-button 
                   (click)="decreaseQuantity()"

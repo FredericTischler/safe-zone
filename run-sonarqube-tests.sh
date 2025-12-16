@@ -1,33 +1,47 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Script pour lancer tous les tests SonarQube
 # E-Commerce Safe Zone Project
 
-SONAR_TOKEN="sqa_960d50ef3186bd23ec19235a75ed359b696ac324"
-PROJECT_ROOT=$(pwd)
+SONAR_TOKEN="${SONAR_TOKEN:-}"
+PROJECT_ROOT="$(pwd)"
 
 echo "=========================================="
 echo "  Lancement des tests SonarQube"
 echo "=========================================="
 echo ""
 
+if [[ -z "$SONAR_TOKEN" ]]; then
+    read -r -s -p "Veuillez saisir votre SONAR_TOKEN: " SONAR_TOKEN
+    echo ""
+    if [[ -z "$SONAR_TOKEN" ]]; then
+        echo "❌ SONAR_TOKEN requis pour exécuter les analyses."
+        exit 1
+    fi
+fi
+
 # Fonction pour afficher les messages
 print_section() {
+    local title="$1"
     echo ""
     echo "=========================================="
-    echo "  $1"
+    echo "  $title"
     echo "=========================================="
     echo ""
+    return 0
 }
 
 # Fonction pour gérer les erreurs
 handle_error() {
-    echo "❌ Erreur lors de l'exécution de : $1"
-    echo "Voulez-vous continuer avec les autres services ? (y/n)"
-    read -r response
+    local step="$1"
+    echo "❌ Erreur lors de l'exécution de : $step"
+    read -r -p "Voulez-vous continuer avec les autres services ? (y/n) " response
     if [[ "$response" != "y" ]]; then
         exit 1
     fi
+    return 0
 }
 
 # Test 1: User Service

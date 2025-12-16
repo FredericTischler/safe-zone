@@ -81,7 +81,7 @@ export class Dashboard implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.success) {
+      if (result?.success) {
         this.snackBar.open('Produit créé avec succès!', 'Fermer', {
           duration: 3000,
           horizontalPosition: 'center',
@@ -100,7 +100,7 @@ export class Dashboard implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.success) {
+      if (result?.success) {
         this.snackBar.open('Produit modifié avec succès!', 'Fermer', {
           duration: 3000,
           horizontalPosition: 'center',

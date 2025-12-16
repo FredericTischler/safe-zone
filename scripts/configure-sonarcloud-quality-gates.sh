@@ -88,6 +88,7 @@ create_quality_gate() {
     fi
 
     echo ""
+    return 0
 }
 
 # Fonction pour ajouter une condition
@@ -107,6 +108,7 @@ add_condition() {
         -d "error=${threshold}" > /dev/null
 
     echo -e "${GREEN}  ✅ Condition ajoutée${NC}"
+    return 0
 }
 
 # Fonction pour configurer les conditions
@@ -137,6 +139,7 @@ configure_conditions() {
     echo ""
     echo -e "${GREEN}✅ Toutes les conditions configurées${NC}"
     echo ""
+    return 0
 }
 
 # Fonction pour appliquer le Quality Gate à un projet
@@ -153,7 +156,7 @@ apply_quality_gate_to_project() {
 
     if [[ -z "$PROJECT_CHECK" ]]; then
         echo -e "${YELLOW}  ⚠️  Projet non trouvé, ignoré${NC}"
-        return
+        return 0
     fi
 
     # Appliquer le Quality Gate
@@ -163,6 +166,7 @@ apply_quality_gate_to_project() {
         -d "gateId=${gate_id}" > /dev/null
 
     echo -e "${GREEN}  ✅ Quality Gate appliqué${NC}"
+    return 0
 }
 
 # Fonction pour appliquer aux projets
@@ -179,6 +183,7 @@ apply_to_projects() {
     echo ""
     echo -e "${GREEN}✅ Quality Gate appliqué à tous les projets${NC}"
     echo ""
+    return 0
 }
 
 # Fonction pour définir comme Quality Gate par défaut
@@ -193,6 +198,7 @@ set_as_default() {
 
     echo -e "${GREEN}✅ Défini comme Quality Gate par défaut${NC}"
     echo ""
+    return 0
 }
 
 # Fonction pour afficher le résumé
@@ -219,6 +225,7 @@ show_summary() {
     echo -e "${BLUE}🌐 Accéder à SonarCloud :${NC}"
     echo -e "  ${SONAR_HOST}/organizations/${ORGANIZATION}/quality_gates"
     echo ""
+    return 0
 }
 
 # Exécution principale

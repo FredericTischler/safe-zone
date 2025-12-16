@@ -59,11 +59,17 @@
         <!-- Avatar (Vendeur uniquement) -->
         @if (registerForm.get('role')?.value === 'SELLER') {
           <div class="avatar-upload">
-            <label class="avatar-label">
+            <label class="avatar-label" for="register-avatar-input">
               <mat-icon>account_circle</mat-icon>
               Avatar (optionnel)
             </label>
-            <input type="file" accept="image/*" (change)="onAvatarSelected($event)" #avatarInput hidden>
+            <input
+              id="register-avatar-input"
+              type="file"
+              accept="image/*"
+              (change)="onAvatarSelected($event)"
+              #avatarInput
+              hidden>
             <button mat-stroked-button type="button" (click)="avatarInput.click()">
               <mat-icon>upload</mat-icon>
               Choisir une image

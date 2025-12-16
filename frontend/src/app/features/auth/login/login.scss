@@ -22,12 +22,12 @@ mat-card-header {
 mat-card-title {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: #111827;
 }
 
 mat-card-subtitle {
   font-size: 14px;
-  color: #666;
+  color: #4b5563;
   margin-top: 5px;
 }
 
@@ -65,8 +65,13 @@ mat-card-subtitle {
   margin-top: 15px;
   
   span {
-    color: #666;
+    color: #1f2933;
     margin-right: 5px;
+  }
+
+  a {
+    color: #1d4ed8;
+    font-weight: 600;
   }
 }
 

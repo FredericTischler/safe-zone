@@ -61,7 +61,7 @@
 
     <!-- Image Upload Section -->
     <div class="image-upload-section">
-      <label class="upload-label">Images du produit</label>
+      <label class="upload-label" for="product-images-input">Images du produit</label>
       
       <!-- Existing Images (in edit mode) -->
       @if (existingImages.length > 0) {
@@ -70,7 +70,7 @@
           <div class="image-previews">
             @for (image of existingImages; track image.id; let i = $index) {
               <div class="preview-item">
-                <img [src]="image.url" alt="Image existante">
+                <img [src]="image.url" [alt]="'Photo enregistrée ' + (i + 1)">
                 <button 
                   type="button"
                   mat-icon-button 
@@ -87,6 +87,7 @@
       }
       
       <input 
+        id="product-images-input"
         type="file" 
         #fileInput
         (change)="onFileSelected($event)"
@@ -111,7 +112,7 @@
           <div class="image-previews">
             @for (preview of imagePreviews; track preview; let i = $index) {
               <div class="preview-item">
-                <img [src]="preview" [alt]="'Preview ' + i">
+                <img [src]="preview" [alt]="'Prévisualisation ' + (i + 1)">
                 <button 
                   type="button"
                   mat-icon-button 

@@ -52,8 +52,8 @@ export class Register {
 
   onAvatarSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
+    const file = input.files?.[0];
+    if (file) {
       
       // Validation taille
       if (file.size > 5 * 1024 * 1024) {
