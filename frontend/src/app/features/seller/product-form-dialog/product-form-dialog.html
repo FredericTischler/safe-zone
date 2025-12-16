@@ -70,7 +70,7 @@
           <div class="image-previews">
             @for (image of existingImages; track image.id; let i = $index) {
               <div class="preview-item">
-                <img [src]="image.url" [alt]="'Image enregistrée ' + (i + 1)">
+                <img [src]="image.url" [alt]="'Vue enregistrée ' + (i + 1)">
                 <button 
                   type="button"
                   mat-icon-button 

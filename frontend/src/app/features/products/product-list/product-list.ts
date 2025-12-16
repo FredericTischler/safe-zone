@@ -15,7 +15,6 @@ import { Product } from '../../../core/services/product';
 import { MediaService } from '../../../core/services/media';
 import { Cart } from '../../../core/services/cart';
 import { Auth } from '../../../core/services/auth';
-import { Product as ProductModel } from '../../../core/models/product.model';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 

@@ -8,9 +8,11 @@ set -euo pipefail
 SONAR_TOKEN="${SONAR_TOKEN:-}"
 PROJECT_ROOT="$(pwd)"
 
-echo "=========================================="
+BANNER="=========================================="
+
+echo "$BANNER"
 echo "  Lancement des tests SonarQube"
-echo "=========================================="
+echo "$BANNER"
 echo ""
 
 if [[ -z "$SONAR_TOKEN" ]]; then
@@ -26,9 +28,9 @@ fi
 print_section() {
     local title="$1"
     echo ""
-    echo "=========================================="
+    echo "$BANNER"
     echo "  $title"
-    echo "=========================================="
+    echo "$BANNER"
     echo ""
     return 0
 }
