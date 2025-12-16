@@ -104,6 +104,83 @@ class UserServiceTest {
     }
 
     @Test
+    void login_shouldFailWhenUserNotFound() {
+        when(userRepository.findByEmail("ghost@mail.com")).thenReturn(Optional.empty());
+
+        LoginRequest request = new LoginRequest("ghost@mail.com", "password");
+
+        assertThatThrownBy(() -> userService.login(request))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Email ou mot de passe invalide");
+    }
+
+    @Test
+    void login_shouldFailWhenPasswordInvalid() {
+        User user = new User();
+        user.setEmail("alice@mail.com");
+        user.setPassword("hashed");
+
+        when(userRepository.findByEmail("alice@mail.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("bad", "hashed")).thenReturn(false);
+
+        LoginRequest request = new LoginRequest("alice@mail.com", "bad");
+
+        assertThatThrownBy(() -> userService.login(request))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Email ou mot de passe invalide");
+    }
+
+    @Test
+    void getProfile_shouldReturnUserResponse() {
+        User user = new User();
+        user.setId("user-1");
+        user.setName("Alice");
+        user.setEmail("alice@mail.com");
+        user.setRole(Role.CLIENT);
+
+        when(userRepository.findByEmail("alice@mail.com")).thenReturn(Optional.of(user));
+
+        var response = userService.getProfile("alice@mail.com");
+
+        assertThat(response.getId()).isEqualTo("user-1");
+        assertThat(response.getName()).isEqualTo("Alice");
+        assertThat(response.getRole()).isEqualTo(Role.CLIENT);
+    }
+
+    @Test
+    void getProfile_shouldThrowWhenUserMissing() {
+        when(userRepository.findByEmail("ghost@mail.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getProfile("ghost@mail.com"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Utilisateur non trouvé");
+    }
+
+    @Test
+    void updateProfile_shouldUpdateFields() {
+        User user = new User();
+        user.setEmail("alice@mail.com");
+        user.setName("Old");
+        user.setAvatar("/old.png");
+
+        when(userRepository.findByEmail("alice@mail.com")).thenReturn(Optional.of(user));
+
+        var response = userService.updateProfile("alice@mail.com", "NewName", "/new.png");
+
+        assertThat(response.getName()).isEqualTo("NewName");
+        assertThat(response.getAvatar()).isEqualTo("/new.png");
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void emailExists_shouldDelegateToRepository() {
+        when(userRepository.existsByEmail("alice@mail.com")).thenReturn(true);
+
+        assertThat(userService.emailExists("alice@mail.com")).isTrue();
+        verify(userRepository).existsByEmail("alice@mail.com");
+    }
+
+    @Test
     void uploadAvatar_shouldStoreFileAndUpdateUser() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
         when(file.isEmpty()).thenReturn(false);

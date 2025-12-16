@@ -15,6 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,5 +107,45 @@ class ProductServiceTest {
         verify(kafkaTemplate).send(eq("product-events"), eventCaptor.capture());
         assertThat(eventCaptor.getValue().getEventType()).isEqualTo("DELETED");
         assertThat(eventCaptor.getValue().getProductId()).isEqualTo("product-1");
+    }
+
+    @Test
+    void getAllProducts_shouldMapEntitiesToResponses() {
+        Product p = new Product();
+        p.setId("id");
+        when(productRepository.findAll()).thenReturn(List.of(p));
+
+        List<ProductResponse> responses = productService.getAllProducts();
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getId()).isEqualTo("id");
+    }
+
+    @Test
+    void getProductById_shouldReturnOptionalResponse() {
+        Product p = new Product();
+        p.setId("id");
+        when(productRepository.findById("id")).thenReturn(Optional.of(p));
+
+        Optional<ProductResponse> response = productService.getProductById("id");
+
+        assertThat(response).isPresent();
+        assertThat(response.get().getId()).isEqualTo("id");
+    }
+
+    @Test
+    void updateProduct_shouldSaveWhenOwnerMatches() {
+        Product existing = new Product();
+        existing.setId("product-1");
+        existing.setSellerId("owner-1");
+        when(productRepository.findById("product-1")).thenReturn(Optional.of(existing));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProductRequest request = new ProductRequest("name", "desc", 10.0, "cat", 2);
+
+        ProductResponse response = productService.updateProduct("product-1", request, "owner-1");
+
+        assertThat(response.getName()).isEqualTo("name");
+        verify(kafkaTemplate).send(eq("product-events"), any(ProductEvent.class));
     }
 }

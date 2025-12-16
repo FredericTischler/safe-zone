@@ -5,18 +5,21 @@ import com.ecommerce.media.model.Media;
 import com.ecommerce.media.repository.MediaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,5 +109,75 @@ class MediaServiceTest {
 
         assertThat(Files.exists(storedFile)).isFalse();
         verify(mediaRepository).delete(media);
+    }
+
+    @Test
+    void uploadMedia_shouldRejectEmptyFile() {
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.isEmpty()).thenReturn(true);
+
+        assertThatThrownBy(() -> mediaService.uploadMedia(multipartFile, "product", "seller"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("vide");
+    }
+
+    @Test
+    void uploadMedia_shouldRejectInvalidContentType() {
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.isEmpty()).thenReturn(false);
+        when(multipartFile.getSize()).thenReturn(1024L);
+        when(multipartFile.getContentType()).thenReturn("text/plain");
+
+        assertThatThrownBy(() -> mediaService.uploadMedia(multipartFile, "product", "seller"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Format non autorisé");
+    }
+
+    @Test
+    void getMediaByProductId_shouldMapResponses() {
+        Media media = new Media();
+        media.setId("id");
+        media.setProductId("product");
+        when(mediaRepository.findByProductId("product")).thenReturn(List.of(media));
+
+        List<MediaResponse> responses = mediaService.getMediaByProductId("product");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getId()).isEqualTo("id");
+    }
+
+    @Test
+    void getMediaFile_shouldReturnResource() throws Exception {
+        Path productDir = Files.createDirectories(tempDir.resolve("product-1"));
+        Path file = productDir.resolve("file.png");
+        Files.writeString(file, "data");
+
+        Resource resource = mediaService.getMediaFile("product-1", "file.png");
+
+        assertThat(resource.exists()).isTrue();
+        assertThat(resource.getFilename()).isEqualTo("file.png");
+    }
+
+    @Test
+    void getMediaFile_shouldThrowWhenMissing() {
+        assertThatThrownBy(() -> mediaService.getMediaFile("product-1", "missing.png"))
+            .isInstanceOf(IOException.class);
+    }
+
+    @Test
+    void deleteAllByProductId_shouldDeleteFilesAndRecords() throws Exception {
+        Path productDir = Files.createDirectories(tempDir.resolve("product-1"));
+        Path file = productDir.resolve("file.png");
+        Files.writeString(file, "content");
+
+        Media media = new Media();
+        media.setProductId("product-1");
+        media.setFilename("file.png");
+        when(mediaRepository.findByProductId("product-1")).thenReturn(List.of(media));
+
+        mediaService.deleteAllByProductId("product-1");
+
+        assertThat(Files.exists(file)).isFalse();
+        verify(mediaRepository).deleteAllByProductId("product-1");
     }
 }
