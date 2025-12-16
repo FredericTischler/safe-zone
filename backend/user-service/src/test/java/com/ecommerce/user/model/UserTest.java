@@ -30,7 +30,7 @@ class UserTest {
         User second = new User("id", "Bob", "bob@mail.com", "pwd", Role.SELLER, "/a.png", null, null);
 
         assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first).hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("bob@mail.com");
         second.setEmail("alice@mail.com");
         assertThat(first).isNotEqualTo(second);

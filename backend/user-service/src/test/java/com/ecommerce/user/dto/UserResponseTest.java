@@ -40,7 +40,7 @@ class UserResponseTest {
             "/avatars/a.png", now.minusDays(1), now);
 
         assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first).hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Alice");
         second.setEmail("other@mail.com");
         assertThat(first).isNotEqualTo(second);

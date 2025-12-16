@@ -33,7 +33,7 @@ class RegisterRequestTest {
         RegisterRequest second = new RegisterRequest("Alice", "alice@mail.com", "password123", Role.CLIENT);
 
         assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first).hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("Alice");
         second.setRole(Role.SELLER);
         assertThat(first).isNotEqualTo(second);

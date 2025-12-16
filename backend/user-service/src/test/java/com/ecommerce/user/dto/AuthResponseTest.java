@@ -37,7 +37,7 @@ class AuthResponseTest {
         AuthResponse second = new AuthResponse("token", "Bearer", "user-1", "alice@mail.com", "Alice", "SELLER", "/a.png");
 
         assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first).hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("alice@mail.com");
         second.setRole("CLIENT");
         assertThat(first).isNotEqualTo(second);

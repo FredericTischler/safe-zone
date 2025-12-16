@@ -30,7 +30,7 @@ class LoginRequestTest {
         LoginRequest second = new LoginRequest("alice@mail.com", "pwd");
 
         assertThat(first).isEqualTo(second);
-        assertThat(first.hashCode()).isEqualTo(second.hashCode());
+        assertThat(first).hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("alice@mail.com");
         second.setEmail("bob@mail.com");
         assertThat(first).isNotEqualTo(second);
