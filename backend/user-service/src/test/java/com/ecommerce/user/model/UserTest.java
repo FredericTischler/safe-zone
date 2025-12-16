@@ -10,8 +10,9 @@ class UserTest {
     void customConstructorShouldInitializeTimestamps() {
         User user = new User("Alice", "alice@mail.com", "hashed", Role.CLIENT);
 
-        assertThat(user.getName()).isEqualTo("Alice");
-        assertThat(user.getRole()).isEqualTo(Role.CLIENT);
+        assertThat(user)
+            .extracting(User::getName, User::getRole, User::getCreatedAt, User::getUpdatedAt)
+            .containsExactly("Alice", Role.CLIENT, user.getCreatedAt(), user.getUpdatedAt());
         assertThat(user.getCreatedAt()).isNotNull();
         assertThat(user.getUpdatedAt()).isNotNull();
     }
@@ -20,8 +21,9 @@ class UserTest {
     void allArgsConstructorShouldExposeValues() {
         User user = new User("id", "Bob", "bob@mail.com", "pwd", Role.SELLER, "/a.png", null, null);
 
-        assertThat(user.getId()).isEqualTo("id");
-        assertThat(user.getAvatar()).isEqualTo("/a.png");
+        assertThat(user)
+            .extracting(User::getId, User::getAvatar)
+            .containsExactly("id", "/a.png");
     }
 
     @Test

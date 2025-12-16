@@ -11,8 +11,9 @@ class RegisterRequestTest {
     void allArgsConstructorShouldPopulateFields() {
         RegisterRequest request = new RegisterRequest("Alice", "alice@mail.com", "password123", Role.CLIENT);
 
-        assertThat(request.getName()).isEqualTo("Alice");
-        assertThat(request.getRole()).isEqualTo(Role.CLIENT);
+        assertThat(request)
+            .extracting(RegisterRequest::getName, RegisterRequest::getRole)
+            .containsExactly("Alice", Role.CLIENT);
     }
 
     @Test
@@ -23,8 +24,9 @@ class RegisterRequestTest {
         request.setPassword("pwd");
         request.setRole(Role.SELLER);
 
-        assertThat(request.getEmail()).isEqualTo("bob@mail.com");
-        assertThat(request.getRole()).isEqualTo(Role.SELLER);
+        assertThat(request)
+            .extracting(RegisterRequest::getEmail, RegisterRequest::getRole)
+            .containsExactly("bob@mail.com", Role.SELLER);
     }
 
     @Test

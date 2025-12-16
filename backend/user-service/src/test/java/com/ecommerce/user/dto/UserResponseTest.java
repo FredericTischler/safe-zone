@@ -15,9 +15,9 @@ class UserResponseTest {
         UserResponse response = new UserResponse("id", "Alice", "alice@mail.com", Role.CLIENT,
             "/avatars/a.png", now.minusDays(1), now);
 
-        assertThat(response.getId()).isEqualTo("id");
-        assertThat(response.getRole()).isEqualTo(Role.CLIENT);
-        assertThat(response.getUpdatedAt()).isEqualTo(now);
+        assertThat(response)
+            .extracting(UserResponse::getId, UserResponse::getRole, UserResponse::getUpdatedAt)
+            .containsExactly("id", Role.CLIENT, now);
     }
 
     @Test
@@ -27,8 +27,9 @@ class UserResponseTest {
         response.setName("Bob");
         response.setAvatar("/a.png");
 
-        assertThat(response.getName()).isEqualTo("Bob");
-        assertThat(response.getAvatar()).contains(".png");
+        assertThat(response)
+            .extracting(UserResponse::getName, UserResponse::getAvatar)
+            .containsExactly("Bob", "/a.png");
     }
 
     @Test

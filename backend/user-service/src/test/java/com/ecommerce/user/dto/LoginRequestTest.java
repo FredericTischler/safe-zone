@@ -10,8 +10,9 @@ class LoginRequestTest {
     void allArgsConstructorShouldExposeValues() {
         LoginRequest request = new LoginRequest("alice@mail.com", "secret");
 
-        assertThat(request.getEmail()).isEqualTo("alice@mail.com");
-        assertThat(request.getPassword()).isEqualTo("secret");
+        assertThat(request)
+            .extracting(LoginRequest::getEmail, LoginRequest::getPassword)
+            .containsExactly("alice@mail.com", "secret");
     }
 
     @Test
@@ -20,8 +21,9 @@ class LoginRequestTest {
         request.setEmail("bob@mail.com");
         request.setPassword("pwd");
 
-        assertThat(request.getEmail()).isEqualTo("bob@mail.com");
-        assertThat(request.getPassword()).isEqualTo("pwd");
+        assertThat(request)
+            .extracting(LoginRequest::getEmail, LoginRequest::getPassword)
+            .containsExactly("bob@mail.com", "pwd");
     }
 
     @Test

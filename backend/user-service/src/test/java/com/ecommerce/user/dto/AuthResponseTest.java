@@ -18,9 +18,9 @@ class AuthResponseTest {
             "/avatars/a.png"
         );
 
-        assertThat(response.getToken()).isEqualTo("token");
-        assertThat(response.getRole()).isEqualTo("CLIENT");
-        assertThat(response.getAvatar()).contains(".png");
+        assertThat(response)
+            .extracting(AuthResponse::getToken, AuthResponse::getRole, AuthResponse::getAvatar)
+            .containsExactly("token", "CLIENT", "/avatars/a.png");
     }
 
     @Test
