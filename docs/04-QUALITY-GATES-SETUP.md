@@ -266,7 +266,7 @@ public User getUser(String userId) {
 
 // Vulnérabilité 2 : Hardcoded password
 public void connect() {
-    String password = "admin123";  // ❌ Mot de passe en clair
+    String password = "hardcodedPassword";  // ❌ Mot de passe en clair
     database.connect("admin", password);
 }
 // Fix :

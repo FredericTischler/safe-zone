@@ -280,6 +280,24 @@ squ_abc123def456ghi789jkl012mno345pqr678stu
 
 ---
 
+### Secrets Applicatifs (MongoDB / SSL / JWT)
+
+Ces secrets sont désormais obligatoires pour exécuter les microservices (localement, via Docker Compose ou dans GitHub Actions). Définissez-les dans votre fichier `.env` et/ou comme `Repository secrets` :
+
+| Nom | Description | Exemple de valeur |
+| --- | --- | --- |
+| `MONGODB_ROOT_USERNAME` | Compte administrateur MongoDB initialisé par docker-compose | `admin` |
+| `MONGODB_ROOT_PASSWORD` | Mot de passe administrateur MongoDB | `generate-a-strong-password` |
+| `USER_SERVICE_MONGODB_URI` | URI complet (avec credentials) pour la base `ecommerce_users` | `mongodb://svc-user:<password>@mongodb:27017/ecommerce_users?authSource=admin` |
+| `PRODUCT_SERVICE_MONGODB_URI` | URI MongoDB pour `ecommerce_products` | `mongodb://svc-product:<password>@mongodb:27017/ecommerce_products?authSource=admin` |
+| `MEDIA_SERVICE_MONGODB_URI` | URI MongoDB pour `ecommerce_media` | `mongodb://svc-media:<password>@mongodb:27017/ecommerce_media?authSource=admin` |
+| `SERVER_SSL_KEY_STORE_PASSWORD` | Mot de passe du keystore TLS partagé par les services | `much-stronger-than-changeit` |
+| `JWT_SECRET` | Secret HS256 partagé pour signer/valider les JWT | Chaîne aléatoire de ≥64 caractères |
+
+> 💡 **Bonnes pratiques** : créez des comptes Mongo distincts (droits minimaux) pour chaque microservice et stockez toutes ces valeurs via GitHub Secrets pour la CI/CD. Le fichier `.env.example` fournit un gabarit à adapter.
+
+---
+
 ### Secrets Additionnels (Optionnels)
 
 #### Secret 2 : DOCKER_USERNAME (Optionnel)

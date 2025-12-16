@@ -8,7 +8,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:keystore.p12
-    key-store-password: changeit
+    key-store-password: ${SERVER_SSL_KEY_STORE_PASSWORD:?SERVER_SSL_KEY_STORE_PASSWORD must be provided}
     key-store-type: PKCS12
     key-alias: ecommerce
   servlet:
@@ -24,13 +24,8 @@ spring:
   # MONGODB CONNECTION
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: ecommerce_users
-      authentication-database: admin
-      username: admin
-      password: admin123
-  
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/ecommerce_users}
+
   # KAFKA
   kafka:
     bootstrap-servers: localhost:9092
@@ -47,7 +42,7 @@ spring:
 
 # JWT CONFIGURATION
 jwt:
-  secret: MySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForHS256Algorithm
+  secret: ${JWT_SECRET:?JWT_SECRET must be provided}
   expiration: 86400000  # 24 heures en millisecondes
 
 # LOGGING

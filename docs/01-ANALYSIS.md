@@ -138,7 +138,7 @@ ecommerce-infrastructure/    # Repo 5 (Docker Compose, configs)
 #### Base de Données
 - **MongoDB 7.0** : NoSQL document-oriented
   - Bases séparées : `ecommerce_users`, `ecommerce_products`, `ecommerce_media`
-  - Authentification : admin/admin123
+  - Authentification : gérée via variables d'environnement (plus de mot de passe en clair)
   - Driver : Spring Data MongoDB
 
 #### Outils et Utilitaires

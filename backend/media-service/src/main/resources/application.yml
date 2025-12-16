@@ -3,7 +3,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:keystore.p12
-    key-store-password: changeit
+    key-store-password: ${SERVER_SSL_KEY_STORE_PASSWORD:?SERVER_SSL_KEY_STORE_PASSWORD must be provided}
     key-store-type: PKCS12
     key-alias: ecommerce
 
@@ -12,7 +12,7 @@ spring:
     name: media-service
   data:
     mongodb:
-      uri: mongodb://admin:admin123@localhost:27017/ecommerce_media?authSource=admin
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/ecommerce_media}
       database: ecommerce_media
   servlet:
     multipart:
@@ -21,7 +21,7 @@ spring:
       max-request-size: 2MB
 
 jwt:
-  secret: MySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForHS256Algorithm
+  secret: ${JWT_SECRET:?JWT_SECRET must be provided}
 
 kafka:
   bootstrap-servers: localhost:9092
