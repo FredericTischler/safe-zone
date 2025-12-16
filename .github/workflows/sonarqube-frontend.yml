@@ -168,7 +168,7 @@ jobs:
       # Checks if code meets quality standards
       # ----------------------------------------------------------------------
       - name: SonarCloud Quality Gate check
-        uses: sonarsource/sonarqube-quality-gate-action@master
+        uses: sonarsource/sonarqube-quality-gate-action@v3.0.0  # Pinned to specific version for security
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
