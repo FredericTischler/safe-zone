@@ -27,8 +27,9 @@ class AuthResponseTest {
     void customConstructorShouldDefaultTypeToBearer() {
         AuthResponse response = new AuthResponse("token", "user-1", "alice@mail.com", "Alice", "SELLER", "/a.png");
 
-        assertThat(response.getType()).isEqualTo("Bearer");
-        assertThat(response.getUserId()).isEqualTo("user-1");
+        assertThat(response)
+            .extracting(AuthResponse::getType, AuthResponse::getUserId)
+            .containsExactly("Bearer", "user-1");
     }
 
     @Test
@@ -36,9 +37,11 @@ class AuthResponseTest {
         AuthResponse first = new AuthResponse("token", "Bearer", "user-1", "alice@mail.com", "Alice", "SELLER", "/a.png");
         AuthResponse second = new AuthResponse("token", "Bearer", "user-1", "alice@mail.com", "Alice", "SELLER", "/a.png");
 
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
+        assertThat(first)
+            .isEqualTo(second)
+            .hasSameHashCodeAs(second);
         assertThat(first.toString()).contains("alice@mail.com");
+
         second.setRole("CLIENT");
         assertThat(first).isNotEqualTo(second);
     }
