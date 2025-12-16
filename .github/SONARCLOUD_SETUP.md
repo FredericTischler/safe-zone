@@ -74,10 +74,12 @@ Pour chaque projet :
 5. Cliquer sur **Generate**
 6. **IMPORTANT:** Copier le token immédiatement (il ne sera plus visible)
 
-Exemple de token généré :
+Exemple de format de token généré :
 ```
-sqp_1234567890abcdef1234567890abcdef12345678
+sqp_[40_CARACTERES_ALPHANUMERIQUES_GENERES_PAR_SONARCLOUD]
 ```
+
+> **IMPORTANT:** Ne jamais commiter le vrai token dans le code. Utilisez toujours les GitHub Secrets.
 
 ### 2.2 Vérifier les permissions
 
